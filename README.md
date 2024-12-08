@@ -1,6 +1,7 @@
 # scratch_vit
 
 ## TODO
+[] 
 
 
 ## Resources
