@@ -4,6 +4,10 @@
 
 Run `conda env create -f environment.yml` to install the correct environment.
 
+Run `python -m ipykernel install --user --name=scratch_vit` to install the environment in your Jupyter notebook.
+
+To grab the MNIST data, follow the instructions [here](https://pypi.org/project/python-mnist/).
+
 Note: You need access to a CUDA-enabled GPU.
 
 ## TODO

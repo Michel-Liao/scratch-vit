@@ -1,16 +1,19 @@
 name: scratch_vit
 channels:
   - conda-forge
+  - anaconda
   - defaults
   - pytorch
   - nvidia
 dependencies:
   - python == 3.10
   - pytorch
+  - torchvision
   - cupy
   - pillow
   - matplotlib
   - numpy=1.*
+  - ipykernel
   - pip
   - pip:
     - opencv-python
