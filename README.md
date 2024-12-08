@@ -1,5 +1,11 @@
 # scratch_vit
 
+## Install
+
+Run `conda env create -f environment.yml` to install the correct environment.
+
+Note: You need access to a CUDA-enabled GPU.
+
 ## TODO
 [] 
 
