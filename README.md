@@ -11,14 +11,22 @@ To grab the MNIST data, follow the instructions [here](https://pypi.org/project/
 Note: You need access to a CUDA-enabled GPU.
 
 ## TODO
-[] Patchification
+[X] Patchification
+
 [] Position Embedding
+
 [] MLP
+
 [] MHA
+
 [] Layer Norm
+
 [] GELU
+
 [] Optimizer
+
 [] Loss
+
 [] Softmax
 
 
