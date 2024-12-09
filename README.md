@@ -12,14 +12,14 @@ Note: You need access to a CUDA-enabled GPU.
 
 ## TODO
 - [X] Patchification
-- [] Position Embedding
-- [] MLP
-- [] MHA
-- [] Layer Norm
-- [] GELU
-- [] Optimizer
-- [] Loss
-- [] Softmax
+- [ ] Position Embedding
+- [ ] MLP
+- [ ] MHA
+- [ ] Layer Norm
+- [ ] GELU
+- [ ] Optimizer
+- [ ] Loss
+- [ ] Softmax
 
 
 ## Resources
