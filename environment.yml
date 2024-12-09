@@ -14,6 +14,7 @@ dependencies:
   - matplotlib
   - numpy=1.*
   - ipykernel
+  - unittest
   - pip
   - pip:
     - opencv-python
