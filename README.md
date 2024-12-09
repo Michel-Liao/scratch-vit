@@ -27,5 +27,14 @@ Note: You need access to a CUDA-enabled GPU.
 * [CuPy (NumPy for GPU)](https://cupy.dev/)
 * [Numba (fast Python compilter)](https://numba.pydata.org/)
 
-## Observations:
+## Citations
+* ViT Paper
+* Transformer paper
+* Adam paper
+
+## Observations
 * When doing patchify, issue of what happens if the image dimension doesn't work well with the patch dimension? The ViT paper doesn't explain this case but the Appendix B.1 shows they use resolution 224 x 224 which is divisible by their patch sizes of 16 and 32. We will do the same.
+* Implementing things in the order of the paper's method section isn't possible. Often, earlier steps mentioned, like learned positional embedding, require something later on, in this case an MLP.
+* Adam optimizer actually can optimizer with respect to a weight matrix w that has the bias concatenated so we can write less code.
+* Lots of minor design decisions, e.g. type of optimizers, ways to allocate memory in functions, etc..
+* Learned about ABC in this.
