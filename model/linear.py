@@ -39,8 +39,6 @@ class Linear:
             self.bias = None
         self.cache = dict(input=None)
         self._init_params(init=init)
-        self.optimizer_w = None
-        self.optimizer_b = None
         self._init_optimizers(optimizer=Adam())
 
     def _init_params(self, init="he") -> None:
@@ -85,7 +83,7 @@ class Linear:
         self.optimizer_w = copy.deepcopy(optimizer)
         self.optimizer_b = copy.deepcopy(optimizer)
 
-    def _update_params(self) -> None:
+    def update_params(self) -> None:
         """
         Update weights and biases.
 
