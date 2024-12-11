@@ -29,6 +29,7 @@ Note: You need access to a CUDA-enabled GPU.
 * [Numba (fast Python compilter)](https://numba.pydata.org/)
 * [Softmax + Cross-entropy Loss](https://levelup.gitconnected.com/killer-combo-softmax-and-cross-entropy-5907442f60ba)
 * [Numerically stable softmax + CELoss](https://jaykmody.com/blog/stable-softmax/)
+* [Calculating GELU](https://www.youtube.com/watch?v=FWhMkpo9yuM)
 
 ## Citations
 * ViT Paper
@@ -36,6 +37,8 @@ Note: You need access to a CUDA-enabled GPU.
 * Adam paper
 * Kaiming He Init Paper
 * Xavier Init Paper
+* GELU Paper
+* RELU Paper
 
 ## Observations
 * When doing patchify, issue of what happens if the image dimension doesn't work well with the patch dimension? The ViT paper doesn't explain this case but the Appendix B.1 shows they use resolution 224 x 224 which is divisible by their patch sizes of 16 and 32. We will do the same.
