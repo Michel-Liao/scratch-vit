@@ -42,6 +42,7 @@ To run the unit tests:
 * [Numerically stable softmax + CELoss](https://jaykmody.com/blog/stable-softmax/)
 * [Calculating GELU](https://www.youtube.com/watch?v=FWhMkpo9yuM)
 * [LayerNorm backprop](https://robotchinwag.com/posts/layer-normalization-deriving-the-gradient-for-the-backward-pass/)
+* [ViT Notebook Explainer](https://github.com/nerminnuraydogan/vision-transformer/blob/main/vision-transformer.ipynb)
 
 ## Citations
 * ViT Paper
