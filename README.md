@@ -1,5 +1,7 @@
 # scratch_vit
 
+## **FIX THE DAMN SOFTMAX**
+
 ## Install
 
 ### MNIST Download
