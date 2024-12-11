@@ -13,13 +13,13 @@ Note: You need access to a CUDA-enabled GPU.
 ## TODO
 - [X] Patchification
 - [ ] Position Embedding
-- [ ] MLP
+- [X] Linear
 - [ ] MHA
 - [ ] Layer Norm
 - [ ] GELU
 - [X] Optimizer
-- [ ] Loss
-- [ ] Softmax
+- [X] Cross-entropy loss
+- [X] Softmax
 
 
 ## Resources
@@ -27,6 +27,8 @@ Note: You need access to a CUDA-enabled GPU.
 * [Transformer NumPy Implementation](https://github.com/AkiRusProd/numpy-transformer/tree/master)
 * [CuPy (NumPy for GPU)](https://cupy.dev/)
 * [Numba (fast Python compilter)](https://numba.pydata.org/)
+* [Softmax + Cross-entropy Loss](https://levelup.gitconnected.com/killer-combo-softmax-and-cross-entropy-5907442f60ba)
+* [Numerically stable softmax + CELoss](https://jaykmody.com/blog/stable-softmax/)
 
 ## Citations
 * ViT Paper
@@ -41,3 +43,5 @@ Note: You need access to a CUDA-enabled GPU.
 * Adam optimizer actually can optimizer with respect to a weight matrix w that has the bias concatenated so we can write less code.
 * Lots of minor design decisions, e.g. type of optimizers, ways to allocate memory in functions, dimensions to store weights matrix in linear layer ([out, in] better than [in, out] for the backward pass because of some CUDA and caching reasons).
 * Learned about ABC and unittest libraries in this.
+* Understanding softmax + CEloss pairing and going through the derivation of it to find loss with respect to logits. (Small implementation details like integer vs one-hot encoding.) Numerical stability issues with softmax. Clipping probabilities to avoid log(0).
+* Small import issues like using sys(..) only works if it's in a package... `__init__` needed
