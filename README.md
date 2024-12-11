@@ -8,11 +8,9 @@ To download the MNIST data, use [torchvision's MNIST class.](https://pytorch.org
 
 ### Environment Setup
 
-Run `conda env create -f environment.yml` to install the correct environment.
-
-Run `python -m ipykernel install --user --name=scratch_vit` to install the environment in your Jupyter notebook.
-
-**Note:** You need access to a CUDA-enabled GPU to run the code.
+* Run `conda env create -f environment.yml` to install the correct environment.
+* Run `python -m ipykernel install --user --name=scratch_vit` to install the environment in your Jupyter notebook.
+* **Note:** You need access to a CUDA-enabled GPU to run the code.
 
 ## Run
 
