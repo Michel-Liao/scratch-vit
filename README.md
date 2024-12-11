@@ -64,3 +64,9 @@ To run the unit tests:
 * Linear unit test tested forward and backward pass only for one pass. Needed to pass twice to check the `update_params()` function!
 * Numerical issues with LN. Add eps in the bottom.
 * Issue of using float64 in PyTorch vs float32 in cp for faster computation.
+* Question of how to initialize positional embeddings? Decided on normal distribution as each patch needs to learn to move its embedding toward a certain ideal so should cluster around mean.
+* Issue of no positional embedding PyTorch implementation... just have to be careful. Created some unit tests for shapes.
+
+## Ideas
+* Compare our ViT attention maps/visualize with official implementation
+* Ablations
