@@ -122,20 +122,17 @@ class TestLayerNorm(unittest.TestCase):
 
     def test_parameter_gradients(self):
         # Test gradients for gain and bias parameters
-        x_np = np.random.randn(self.batch_size, self.seq_length, self.hidden_size)
-        grad_np = np.random.randn(self.batch_size, self.seq_length, self.hidden_size)
+        x_cp = cp.random.randn(self.batch_size, self.seq_length, self.hidden_size)
+        grad_cp = cp.random.randn(self.batch_size, self.seq_length, self.hidden_size)
 
         # PyTorch
-        x_torch = torch.FloatTensor(x_np).requires_grad_(True)
-        grad_torch = torch.FloatTensor(grad_np)
+        x_torch = torch.FloatTensor(cp.asnumpy(x_cp)).requires_grad_(True)
+        grad_torch = torch.FloatTensor(cp.asnumpy(grad_cp))
 
         torch_output = self.torch_ln(x_torch)
         torch_output.backward(grad_torch)
 
         # Custom implementation
-        x_cp = cp.array(x_np)
-        grad_cp = cp.array(grad_np)
-
         custom_output = self.custom_ln(x_cp)
         self.custom_ln.backward(grad_cp)
 
