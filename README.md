@@ -6,9 +6,15 @@ Run `conda env create -f environment.yml` to install the correct environment.
 
 Run `python -m ipykernel install --user --name=scratch_vit` to install the environment in your Jupyter notebook.
 
-To grab the MNIST data, follow the instructions [here](https://pypi.org/project/python-mnist/).
+To download the MNIST data, use [torchvision's MNIST class.](https://pytorch.org/vision/main/generated/torchvision.datasets.MNIST.html)
 
-Note: You need access to a CUDA-enabled GPU.
+**Note:** You need access to a CUDA-enabled GPU to run the code.
+
+## Run
+
+To run the unit tests:
+1. `cd unit_tests`
+2. `python -m unittest [scriptname].py`
 
 ## TODO
 - [X] Patchification
@@ -16,7 +22,8 @@ Note: You need access to a CUDA-enabled GPU.
 - [X] Linear
 - [ ] MHA
 - [ ] Layer Norm
-- [ ] GELU
+- [X] ReLU
+- [X] GELU
 - [X] Optimizer
 - [X] Cross-entropy loss
 - [X] Softmax
@@ -26,7 +33,7 @@ Note: You need access to a CUDA-enabled GPU.
 * [ViT NumPy Implementation](https://github.com/kmsgnnew/vision_transformer_numpy/tree/main)
 * [Transformer NumPy Implementation](https://github.com/AkiRusProd/numpy-transformer/tree/master)
 * [CuPy (NumPy for GPU)](https://cupy.dev/)
-* [Numba (fast Python compilter)](https://numba.pydata.org/)
+* [Numba (fast Python compiler)](https://numba.pydata.org/)
 * [Softmax + Cross-entropy Loss](https://levelup.gitconnected.com/killer-combo-softmax-and-cross-entropy-5907442f60ba)
 * [Numerically stable softmax + CELoss](https://jaykmody.com/blog/stable-softmax/)
 * [Calculating GELU](https://www.youtube.com/watch?v=FWhMkpo9yuM)
@@ -39,6 +46,7 @@ Note: You need access to a CUDA-enabled GPU.
 * Xavier Init Paper
 * GELU Paper
 * RELU Paper
+* Layer Norm Paper
 
 ## Observations
 * When doing patchify, issue of what happens if the image dimension doesn't work well with the patch dimension? The ViT paper doesn't explain this case but the Appendix B.1 shows they use resolution 224 x 224 which is divisible by their patch sizes of 16 and 32. We will do the same.
