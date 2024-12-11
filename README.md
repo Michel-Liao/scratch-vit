@@ -2,15 +2,21 @@
 
 ## Install
 
+### MNIST Download
+
+To download the MNIST data, use [torchvision's MNIST class.](https://pytorch.org/vision/main/generated/torchvision.datasets.MNIST.html)
+
+### Environment Setup
+
 Run `conda env create -f environment.yml` to install the correct environment.
 
 Run `python -m ipykernel install --user --name=scratch_vit` to install the environment in your Jupyter notebook.
 
-To download the MNIST data, use [torchvision's MNIST class.](https://pytorch.org/vision/main/generated/torchvision.datasets.MNIST.html)
-
 **Note:** You need access to a CUDA-enabled GPU to run the code.
 
 ## Run
+
+### Unit Tests
 
 To run the unit tests:
 1. `cd unit_tests`
