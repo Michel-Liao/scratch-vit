@@ -7,10 +7,10 @@
 To download the MNIST data, use [torchvision's MNIST class.](https://pytorch.org/vision/main/generated/torchvision.datasets.MNIST.html)
 
 ### Environment Setup
+**Note:** You need access to a CUDA-enabled GPU to run the code.
 
 * Run `conda env create -f environment.yml` to install the correct environment.
 * Run `python -m ipykernel install --user --name=scratch_vit` to install the environment in your Jupyter notebook.
-* **Note:** You need access to a CUDA-enabled GPU to run the code.
 
 ## Run
 
@@ -41,6 +41,7 @@ To run the unit tests:
 * [Softmax + Cross-entropy Loss](https://levelup.gitconnected.com/killer-combo-softmax-and-cross-entropy-5907442f60ba)
 * [Numerically stable softmax + CELoss](https://jaykmody.com/blog/stable-softmax/)
 * [Calculating GELU](https://www.youtube.com/watch?v=FWhMkpo9yuM)
+* [LayerNorm backprop](https://robotchinwag.com/posts/layer-normalization-deriving-the-gradient-for-the-backward-pass/)
 
 ## Citations
 * ViT Paper
@@ -60,3 +61,6 @@ To run the unit tests:
 * Learned about ABC and unittest libraries in this.
 * Understanding softmax + CEloss pairing and going through the derivation of it to find loss with respect to logits. (Small implementation details like integer vs one-hot encoding.) Numerical stability issues with softmax. Clipping probabilities to avoid log(0).
 * Small import issues like using sys(..) only works if it's in a package... `__init__` needed
+* Linear unit test tested forward and backward pass only for one pass. Needed to pass twice to check the `update_params()` function!
+* Numerical issues with LN. Add eps in the bottom.
+* Issue of using float64 in PyTorch vs float32 in cp for faster computation.

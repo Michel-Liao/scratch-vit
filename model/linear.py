@@ -37,7 +37,7 @@ class Linear:
             self.bias = cp.zeros(out_features)
         else:
             self.bias = None
-        self.cache = dict(input=None)
+        self.cache = {}
         self._init_params(init=init)
         self._init_optimizers(optimizer=Adam())
 
