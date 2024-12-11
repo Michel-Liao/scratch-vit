@@ -15,6 +15,7 @@ dependencies:
   - numpy=1.*
   - ipykernel
   - unittest
+  - scipy
   - pip
   - pip:
     - opencv-python
