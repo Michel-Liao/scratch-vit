@@ -70,6 +70,7 @@ To run the unit tests:
 * Question of how to initialize positional embeddings? Decided on normal distribution as each patch needs to learn to move its embedding toward a certain ideal so should cluster around mean.
 * Issue of no positional embedding PyTorch implementation... just have to be careful. Created some unit tests for shapes.
 * Initial implementation of linear layer used the formula z = x @ W.T + b. Switched it back to z = W @ x + b because dimensions weren't working in MHA.
+* ViTBlock backward pass commment. Important to talk about!
 
 ## Ideas
 * Compare our ViT attention maps/visualize with official implementation
