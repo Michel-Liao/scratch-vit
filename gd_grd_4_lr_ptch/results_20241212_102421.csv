@@ -1,0 +1,5 @@
+learning_rate,patch_size,test_accuracy,inference_time_ms,status
+1e-6,1,0.7248,NA,success
+1e-6,2,0.6384,NA,success
+1e-7,1,0.1446,NA,success
+1e-7,2,0.2356,NA,success

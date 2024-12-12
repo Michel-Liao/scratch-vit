@@ -50,8 +50,8 @@ EPOCHS=5
 TEST_INTERVAL=1
 
 # Learning rates to test
-learning_rates=(1e-4 1e-5)
-patch_sizes=(1 2 4 7)
+learning_rates=(1e-6 1e-7)
+patch_sizes=(1 2)
 
 # Log start time and parameters
 {

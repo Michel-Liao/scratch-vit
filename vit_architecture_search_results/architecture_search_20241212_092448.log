@@ -37,3 +37,39 @@ Success - Test Accuracy: 0.8530, Inference Time: NAms
 ---------------------------------------------------
 
 Experiment 6/3*3*3 (heads=8, blocks=12, hidden_dim=256)
+Success - Test Accuracy: 0.8432, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 7/3*3*3 (heads=12, blocks=4, hidden_dim=256)
+Failed - Error during execution
+---------------------------------------------------
+
+Experiment 8/3*3*3 (heads=12, blocks=8, hidden_dim=256)
+Failed - Error during execution
+---------------------------------------------------
+
+Experiment 9/3*3*3 (heads=12, blocks=12, hidden_dim=256)
+Failed - Error during execution
+---------------------------------------------------
+
+Experiment 10/3*3*3 (heads=4, blocks=4, hidden_dim=512)
+Success - Test Accuracy: 0.8808, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 11/3*3*3 (heads=4, blocks=8, hidden_dim=512)
+Success - Test Accuracy: 0.8646, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 12/3*3*3 (heads=4, blocks=12, hidden_dim=512)
+Success - Test Accuracy: 0.8650, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 13/3*3*3 (heads=8, blocks=4, hidden_dim=512)
+Success - Test Accuracy: 0.8732, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 14/3*3*3 (heads=8, blocks=8, hidden_dim=512)
+Success - Test Accuracy: 0.8746, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 15/3*3*3 (heads=8, blocks=12, hidden_dim=512)

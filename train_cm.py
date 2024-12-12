@@ -192,48 +192,169 @@ class VisionTransformer:
             conf_matrix[t, p] += 1
         return conf_matrix
 
-    def plot_confusion_matrix(
-        self, confusion_matrix: cp.ndarray, save_path: str = None
+    def plot_confusion_matrices(
+        self,
+        train_confusion_matrix: cp.ndarray,
+        test_confusion_matrix: cp.ndarray,
+        save_path: str = None,
     ) -> None:
-        """Plot confusion matrix using seaborn's heatmap.
+        """Plot training and test confusion matrices side by side.
 
         Args:
-            confusion_matrix: Computed confusion matrix
+            train_confusion_matrix: Computed confusion matrix for training data
+            test_confusion_matrix: Computed confusion matrix for test data
             save_path: Optional path to save the plot
         """
-        plt.figure(figsize=(10, 8))
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 8))
 
-        # Convert confusion matrix to numpy and normalize
-        cm = cp.asnumpy(confusion_matrix)
-        cm_normalized = cm.astype("float") / cm.sum(axis=1)[:, np.newaxis]
+        # Convert confusion matrices to numpy and normalize
+        train_cm = cp.asnumpy(train_confusion_matrix)
+        test_cm = cp.asnumpy(test_confusion_matrix)
 
-        # Create heatmap
+        # Add small epsilon to avoid division by zero
+        train_cm_normalized = train_cm.astype("float") / (
+            train_cm.sum(axis=1)[:, np.newaxis] + 1e-10
+        )
+        test_cm_normalized = test_cm.astype("float") / (
+            test_cm.sum(axis=1)[:, np.newaxis] + 1e-10
+        )
+
+        # Create heatmaps
         sns.heatmap(
-            cm_normalized,
-            annot=cm,  # Show raw counts in cells
-            fmt="d",  # Format annotations as integers
+            train_cm_normalized,
+            annot=train_cm,
+            fmt="d",
             cmap="Blues",
             xticklabels=range(10),
             yticklabels=range(10),
+            ax=ax1,
+        )
+        sns.heatmap(
+            test_cm_normalized,
+            annot=test_cm,
+            fmt="d",
+            cmap="Blues",
+            xticklabels=range(10),
+            yticklabels=range(10),
+            ax=ax2,
         )
 
-        plt.title("Confusion Matrix")
-        plt.xlabel("Predicted Label")
-        plt.ylabel("True Label")
+        ax1.set_title("Training Confusion Matrix")
+        ax2.set_title("Test Confusion Matrix")
+        ax1.set_xlabel("Predicted Label")
+        ax1.set_ylabel("True Label")
+        ax2.set_xlabel("Predicted Label")
+        ax2.set_ylabel("True Label")
+
+        plt.tight_layout()
 
         if save_path:
             plt.savefig(save_path, bbox_inches="tight", dpi=300)
-            print(f"Confusion matrix plot saved to {save_path}")
+            print(f"Confusion matrices plot saved to {save_path}")
 
         plt.show()
         plt.close()
 
-    def train_model(self, confusion_matrix_path: str = None) -> None:
-        """Train the Vision Transformer model.
+    # def plot_confusion_matrices(
+    #     self,
+    #     train_confusion_matrix: cp.ndarray,
+    #     test_confusion_matrix: cp.ndarray,
+    #     save_path: str = None,
+    # ) -> None:
+    #     """Plot training and test confusion matrices side by side.
 
-        Args:
-            confusion_matrix_path: Optional path to save confusion matrix plot
-        """
+    #     Args:
+    #         train_confusion_matrix: Computed confusion matrix for training data
+    #         test_confusion_matrix: Computed confusion matrix for test data
+    #         save_path: Optional path to save the plot
+    #     """
+    #     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 8))
+
+    #     # Convert confusion matrices to numpy and normalize
+    #     train_cm = cp.asnumpy(train_confusion_matrix)
+    #     test_cm = cp.asnumpy(test_confusion_matrix)
+
+    #     train_cm_normalized = (
+    #         train_cm.astype("float") / train_cm.sum(axis=1)[:, np.newaxis]
+    #     )
+    #     test_cm_normalized = (
+    #         test_cm.astype("float") / test_cm.sum(axis=1)[:, np.newaxis]
+    #     )
+
+    #     # Create heatmaps
+    #     sns.heatmap(
+    #         train_cm_normalized,
+    #         annot=train_cm,
+    #         fmt="d",
+    #         cmap="Blues",
+    #         xticklabels=range(10),
+    #         yticklabels=range(10),
+    #         ax=ax1,
+    #     )
+    #     sns.heatmap(
+    #         test_cm_normalized,
+    #         annot=test_cm,
+    #         fmt="d",
+    #         cmap="Blues",
+    #         xticklabels=range(10),
+    #         yticklabels=range(10),
+    #         ax=ax2,
+    #     )
+
+    #     ax1.set_title("Training Confusion Matrix")
+    #     ax2.set_title("Test Confusion Matrix")
+    #     ax1.set_xlabel("Predicted Label")
+    #     ax1.set_ylabel("True Label")
+    #     ax2.set_xlabel("Predicted Label")
+    #     ax2.set_ylabel("True Label")
+
+    #     plt.tight_layout()
+
+    #     if save_path:
+    #         plt.savefig(save_path, bbox_inches="tight", dpi=300)
+    #         print(f"Confusion matrices plot saved to {save_path}")
+
+    #     plt.show()
+    #     plt.close()
+
+    # def plot_confusion_matrix(
+    #     self, confusion_matrix: cp.ndarray, save_path: str = None
+    # ) -> None:
+    #     """Plot confusion matrix using seaborn's heatmap.
+
+    #     Args:
+    #         confusion_matrix: Computed confusion matrix
+    #         save_path: Optional path to save the plot
+    #     """
+    #     plt.figure(figsize=(10, 8))
+
+    #     # Convert confusion matrix to numpy and normalize
+    #     cm = cp.asnumpy(confusion_matrix)
+    #     cm_normalized = cm.astype("float") / cm.sum(axis=1)[:, np.newaxis]
+
+    #     # Create heatmap
+    #     sns.heatmap(
+    #         cm_normalized,
+    #         annot=cm,  # Show raw counts in cells
+    #         fmt="d",  # Format annotations as integers
+    #         cmap="Blues",
+    #         xticklabels=range(10),
+    #         yticklabels=range(10),
+    #     )
+
+    #     plt.title("Confusion Matrix")
+    #     plt.xlabel("Predicted Label")
+    #     plt.ylabel("True Label")
+
+    #     if save_path:
+    #         plt.savefig(save_path, bbox_inches="tight", dpi=300)
+    #         print(f"Confusion matrix plot saved to {save_path}")
+
+    #     plt.show()
+    #     plt.close()
+
+    def train_model(self, confusion_matrix_path: str = None) -> None:
+        """Train the Vision Transformer model."""
         # Initialize model
         self.model = ViT(
             im_dim=(1, 28, 28),
@@ -255,27 +376,142 @@ class VisionTransformer:
 
             # Collect predictions only on the final epoch
             collect_predictions = epoch == self.epochs - 1
-            train_loss, predictions, true_labels = self.train_iter(collect_predictions)
+            train_loss, train_predictions, train_true_labels = self.train_iter(
+                collect_predictions
+            )
             print(f"Training Loss: {train_loss:.4f}")
 
-            if (epoch + 1) % self.test_epoch_interval == 0:
-                test_loss, test_acc = self.test_iter()
+            if (epoch + 1) % self.test_epoch_interval == 0 or epoch == self.epochs - 1:
+                test_loss, test_acc, test_predictions, test_true_labels = (
+                    self.test_iter(True)
+                )  # Always collect test predictions
                 print(f"Test Loss: {test_loss:.4f}, Test Accuracy: {test_acc:.4f}")
 
-            # Compute and display confusion matrix on the final epoch
-            if collect_predictions:
-                conf_matrix = self.compute_confusion_matrix(true_labels, predictions)
-                print("\nConfusion Matrix:")
-                print(cp.asnumpy(conf_matrix))
+            # Compute and display confusion matrices on the final epoch
+            if epoch == self.epochs - 1:
+                train_conf_matrix = self.compute_confusion_matrix(
+                    train_true_labels, train_predictions
+                )
+                test_conf_matrix = self.compute_confusion_matrix(
+                    test_true_labels, test_predictions
+                )
 
-                # Plot and optionally save the confusion matrix
-                self.plot_confusion_matrix(conf_matrix, confusion_matrix_path)
+                print("\nTraining Confusion Matrix:")
+                print(cp.asnumpy(train_conf_matrix))
+                print("\nTest Confusion Matrix:")
+                print(cp.asnumpy(test_conf_matrix))
 
-    def test_iter(self) -> Tuple[float, float]:
+                # Plot and optionally save the confusion matrices
+                self.plot_confusion_matrices(
+                    train_conf_matrix, test_conf_matrix, confusion_matrix_path
+                )
+
+    # def train_model(self, confusion_matrix_path: str = None) -> None:
+    #     """Train the Vision Transformer model."""
+    #     # Initialize model
+    #     self.model = ViT(
+    #         im_dim=(1, 28, 28),
+    #         n_patches=self.patch_size,
+    #         h_dim=self.hidden_dim,
+    #         n_heads=self.num_heads,
+    #         num_blocks=self.num_blocks,
+    #         classes=10,
+    #         init_method=self.init_method,
+    #     )
+
+    #     self.loss_function = CategoricalCrossEntropyLoss()
+    #     self.optimizer = Adam(lr=self.learning_rate)
+    #     self.model.init_optimizer(self.optimizer)
+
+    #     print(f"Starting training for {self.epochs} epochs...")
+    #     for epoch in range(self.epochs):
+    #         print(f"\nEpoch {epoch + 1}/{self.epochs}")
+
+    #         # Collect predictions only on the final epoch
+    #         collect_predictions = epoch == self.epochs - 1
+    #         train_loss, train_predictions, train_true_labels = self.train_iter(
+    #             collect_predictions
+    #         )
+    #         print(f"Training Loss: {train_loss:.4f}")
+
+    #         if (epoch + 1) % self.test_epoch_interval == 0:
+    #             test_loss, test_acc, test_predictions, test_true_labels = (
+    #                 self.test_iter(collect_predictions)
+    #             )
+    #             print(f"Test Loss: {test_loss:.4f}, Test Accuracy: {test_acc:.4f}")
+
+    #         # Compute and display confusion matrices on the final epoch
+    #         if collect_predictions:
+    #             train_conf_matrix = self.compute_confusion_matrix(
+    #                 train_true_labels, train_predictions
+    #             )
+    #             test_conf_matrix = self.compute_confusion_matrix(
+    #                 test_true_labels, test_predictions
+    #             )
+
+    #             print("\nTraining Confusion Matrix:")
+    #             print(cp.asnumpy(train_conf_matrix))
+    #             print("\nTest Confusion Matrix:")
+    #             print(cp.asnumpy(test_conf_matrix))
+
+    #             # Plot and optionally save the confusion matrices
+    #             self.plot_confusion_matrices(
+    #                 train_conf_matrix, test_conf_matrix, confusion_matrix_path
+    #             )
+
+    # def train_model(self, confusion_matrix_path: str = None) -> None:
+    #     """Train the Vision Transformer model.
+
+    #     Args:
+    #         confusion_matrix_path: Optional path to save confusion matrix plot
+    #     """
+    #     # Initialize model
+    #     self.model = ViT(
+    #         im_dim=(1, 28, 28),
+    #         n_patches=self.patch_size,
+    #         h_dim=self.hidden_dim,
+    #         n_heads=self.num_heads,
+    #         num_blocks=self.num_blocks,
+    #         classes=10,
+    #         init_method=self.init_method,
+    #     )
+
+    #     self.loss_function = CategoricalCrossEntropyLoss()
+    #     self.optimizer = Adam(lr=self.learning_rate)
+    #     self.model.init_optimizer(self.optimizer)
+
+    #     print(f"Starting training for {self.epochs} epochs...")
+    #     for epoch in range(self.epochs):
+    #         print(f"\nEpoch {epoch + 1}/{self.epochs}")
+
+    #         # Collect predictions only on the final epoch
+    #         collect_predictions = epoch == self.epochs - 1
+    #         train_loss, predictions, true_labels = self.train_iter(collect_predictions)
+    #         print(f"Training Loss: {train_loss:.4f}")
+
+    #         if (epoch + 1) % self.test_epoch_interval == 0:
+    #             test_loss, test_acc = self.test_iter()
+    #             print(f"Test Loss: {test_loss:.4f}, Test Accuracy: {test_acc:.4f}")
+
+    #         # Compute and display confusion matrix on the final epoch
+    #         if collect_predictions:
+    #             conf_matrix = self.compute_confusion_matrix(true_labels, predictions)
+    #             print("\nConfusion Matrix:")
+    #             print(cp.asnumpy(conf_matrix))
+
+    #             # Plot and optionally save the confusion matrix
+    #             self.plot_confusion_matrix(conf_matrix, confusion_matrix_path)
+
+    def test_iter(
+        self, collect_predictions: bool = False
+    ) -> Tuple[float, float, list, list]:
         """Evaluate model on test set.
 
+        Args:
+            collect_predictions: Whether to collect predictions and true labels
+
         Returns:
-            Tuple of (average test loss, test accuracy)
+            Tuple of (average test loss, test accuracy, predictions list, true labels list)
         """
         test_dataloader = self.datafeeder(self.x_test, self.y_test)
         test_losses = []
@@ -283,23 +519,106 @@ class VisionTransformer:
         total_samples = 0
         total_batches = len(self.y_test) // self.batch_size
 
+        all_predictions = []
+        all_true_labels = []
+
         for batch in tqdm.tqdm(test_dataloader, total=total_batches, desc="Testing"):
             x, y = batch
-            y_pred = self.model.forward(x)
-            loss = self.loss_function.forward(y_pred, y)
+            with cp.cuda.Device(0):
+                y_pred = self.model.forward(x)
+                loss = self.loss_function.forward(y_pred, y)
 
-            # Calculate accuracy
-            y_prob = Softmax()(y_pred)
-            y_pred_class = cp.argmax(y_prob, axis=-1, keepdims=True)
-            y_true_class = cp.argmax(y, axis=-1, keepdims=True)
-            correct_predictions += int(cp.sum(y_pred_class == y_true_class))
-            total_samples += y.shape[0]
+                # Calculate accuracy
+                y_prob = Softmax()(y_pred)
+                y_pred_class = cp.argmax(y_prob, axis=1)
+                y_true_class = cp.argmax(y, axis=1)
+                correct_predictions += int(cp.sum(y_pred_class == y_true_class))
+                total_samples += y.shape[0]
 
-            test_losses.append(loss)
+                # Always collect predictions for test set
+                all_predictions.extend(cp.asnumpy(y_pred_class))
+                all_true_labels.extend(cp.asnumpy(y_true_class))
+
+                test_losses.append(loss)
 
         avg_loss = float(cp.mean(cp.asarray(test_losses)))
         accuracy = correct_predictions / total_samples
-        return avg_loss, accuracy
+        return avg_loss, accuracy, all_predictions, all_true_labels
+
+    # def test_iter(
+    #     self, collect_predictions: bool = False
+    # ) -> Tuple[float, float, list, list]:
+    #     """Evaluate model on test set.
+
+    #     Args:
+    #         collect_predictions: Whether to collect predictions and true labels
+
+    #     Returns:
+    #         Tuple of (average test loss, test accuracy, predictions list, true labels list)
+    #     """
+    #     test_dataloader = self.datafeeder(self.x_test, self.y_test)
+    #     test_losses = []
+    #     correct_predictions = 0
+    #     total_samples = 0
+    #     total_batches = len(self.y_test) // self.batch_size
+
+    #     all_predictions = []
+    #     all_true_labels = []
+
+    #     for batch in tqdm.tqdm(test_dataloader, total=total_batches, desc="Testing"):
+    #         x, y = batch
+    #         y_pred = self.model.forward(x)
+    #         loss = self.loss_function.forward(y_pred, y)
+
+    #         # Calculate accuracy
+    #         y_prob = Softmax()(y_pred)
+    #         y_pred_class = cp.argmax(y_prob, axis=-1)
+    #         y_true_class = cp.argmax(y, axis=-1)
+    #         correct_predictions += int(
+    #             cp.sum(y_pred_class.reshape(-1, 1) == y_true_class.reshape(-1, 1))
+    #         )
+    #         total_samples += y.shape[0]
+
+    #         if collect_predictions:
+    #             # Move to CPU for storage
+    #             all_predictions.extend(cp.asnumpy(y_pred_class))
+    #             all_true_labels.extend(cp.asnumpy(y_true_class))
+
+    #         test_losses.append(loss)
+
+    #     avg_loss = float(cp.mean(cp.asarray(test_losses)))
+    #     accuracy = correct_predictions / total_samples
+    #     return avg_loss, accuracy, all_predictions, all_true_labels
+
+    # def test_iter(self) -> Tuple[float, float]:
+    #     """Evaluate model on test set.
+
+    #     Returns:
+    #         Tuple of (average test loss, test accuracy)
+    #     """
+    #     test_dataloader = self.datafeeder(self.x_test, self.y_test)
+    #     test_losses = []
+    #     correct_predictions = 0
+    #     total_samples = 0
+    #     total_batches = len(self.y_test) // self.batch_size
+
+    #     for batch in tqdm.tqdm(test_dataloader, total=total_batches, desc="Testing"):
+    #         x, y = batch
+    #         y_pred = self.model.forward(x)
+    #         loss = self.loss_function.forward(y_pred, y)
+
+    #         # Calculate accuracy
+    #         y_prob = Softmax()(y_pred)
+    #         y_pred_class = cp.argmax(y_prob, axis=-1, keepdims=True)
+    #         y_true_class = cp.argmax(y, axis=-1, keepdims=True)
+    #         correct_predictions += int(cp.sum(y_pred_class == y_true_class))
+    #         total_samples += y.shape[0]
+
+    #         test_losses.append(loss)
+
+    #     avg_loss = float(cp.mean(cp.asarray(test_losses)))
+    #     accuracy = correct_predictions / total_samples
+    #     return avg_loss, accuracy
 
 
 def parse_args() -> argparse.Namespace:

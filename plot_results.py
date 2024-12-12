@@ -1,39 +1,31 @@
 import pandas as pd
-import seaborn as sns
+import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 
-# Read the CSV file
-data = pd.read_csv(
-    "/home/michel/repos/scratch_vit/gd_grd_2/results_20241212_081159.csv"
-)
+# Read results
+df = pd.read_csv("vit_grid_search_results/results_20241212_102421.csv")
 
-# Create a pivot table for the heatmap
-pivot_data = data.pivot(
-    index="learning_rate", columns="patch_size", values="test_accuracy"
-)
+# Convert learning_rate to numeric and create readable format
+df['learning_rate'] = pd.to_numeric(df['learning_rate'])
+df['lr_exp'] = df['learning_rate'].apply(lambda x: f'1e{int(np.log10(x))}')
 
-# Create figure and axis with specified size
-plt.figure(figsize=(10, 6))
+# Create accuracy heatmap
+plt.figure(figsize=(12, 8))
+plt.subplot(2, 1, 1)
+pivot_acc = df.pivot(index='patch_size', columns='lr_exp', values='test_accuracy')
+sns.heatmap(pivot_acc, annot=True, fmt='.3f', cmap='viridis')
+plt.title('Grid Search Results: Test Accuracy')
+plt.xlabel('Learning Rate')
+plt.ylabel('Patch Size')
 
-# Create heatmap
-sns.heatmap(
-    pivot_data,
-    annot=True,  # Show values in cells
-    fmt=".3f",  # Format to 3 decimal places
-    cmap="viridis",  # Use viridis colormap (better for continuous data)
-    cbar_kws={"label": "Test Accuracy"},
-    vmin=0.7,  # Set minimum value for better color contrast
-    vmax=1.0,
-)  # Set maximum value for better color contrast
+# Create inference time heatmap
+plt.subplot(2, 1, 2)
+pivot_time = df.pivot(index='patch_size', columns='lr_exp', values='inference_time_ms')
+sns.heatmap(pivot_time, annot=True, fmt='.1f', cmap='rocket_r')
+plt.title('Grid Search Results: Inference Time (ms)')
+plt.xlabel('Learning Rate')
+plt.ylabel('Patch Size')
 
-# Customize the plot
-plt.title("Test Accuracy by Learning Rate and Patch Size")
-plt.xlabel("Patch Size")
-plt.ylabel("Learning Rate")
-
-# Adjust layout to prevent label cutoff
 plt.tight_layout()
-
-# Save the plot
-plt.savefig("accuracy_heatmap.png", dpi=300, bbox_inches="tight")
-plt.close()
+plt.savefig("vit_grid_search_results/grid_search_results.png")

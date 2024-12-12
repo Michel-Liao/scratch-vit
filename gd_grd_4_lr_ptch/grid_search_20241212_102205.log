@@ -1,0 +1,19 @@
+===================================================
+Vision Transformer Grid Search
+Started at: Thu Dec 12 10:22:05 AM EST 2024
+===================================================
+
+Fixed Parameters:
+- Number of heads: 4
+- Number of blocks: 3
+- Hidden dimension: 384
+- Epochs: 5
+- Test interval: 1
+
+Grid Search Parameters:
+- Learning rates: 1e-6 1e-7
+- Patch sizes: 1 2
+
+===================================================
+
+Experiment 1/2*2 (lr=1e-6, patch_size=1)
