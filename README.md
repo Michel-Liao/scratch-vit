@@ -24,10 +24,10 @@ To run the unit tests:
 
 ## TODO
 - [X] Patchification
-- [ ] Position Embedding
+- [X] Position Embedding
 - [X] Linear
 - [ ] MHA
-- [ ] Layer Norm
+- [X] Layer Norm
 - [X] ReLU
 - [X] GELU
 - [X] Optimizer
@@ -62,7 +62,7 @@ To run the unit tests:
 * Adam optimizer actually can optimizer with respect to a weight matrix w that has the bias concatenated so we can write less code.
 * Lots of minor design decisions, e.g. type of optimizers, ways to allocate memory in functions, dimensions to store weights matrix in linear layer ([out, in] better than [in, out] for the backward pass because of some CUDA and caching reasons).
 * Learned about ABC and unittest libraries in this.
-* Understanding softmax + CEloss pairing and going through the derivation of it to find loss with respect to logits. (Small implementation details like integer vs one-hot encoding.) Numerical stability issues with softmax. Clipping probabilities to avoid log(0).
+* Understanding softmax + CEloss pairing and going through the derivation of it to find loss with respect to logits. (Small implementation details like integer vs one-hot encoding.) Numerical stability issues with softmax (subtract max). Clipping probabilities to avoid log(0).
 * Small import issues like using sys(..) only works if it's in a package... `__init__` needed
 * Linear unit test tested forward and backward pass only for one pass. Needed to pass twice to check the `update_params()` function!
 * Numerical issues with LN. Add eps in the bottom.
