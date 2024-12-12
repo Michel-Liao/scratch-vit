@@ -5,30 +5,30 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import cupy as cp
 
-from model.optimizers import Optimizer, Adam
+from optimizers import Optimizer, Adam
 from activations import GELU
 from layer_norm import LayerNorm
 from linear import Linear
 from multi_head_attention import MultiHeadAttention
 
 
-class ViTBlock:
+class TransformerBlock:
     """
-    Vision Transformer block repeated L times in the architecture as shown in Figure 1.
+    Transformer module as shown in Figure 1 in the ViT paper.
     """
 
     def __init__(self, h_dim: int, n_heads: int, mlp_ratio: int = 4) -> None:
-        """Initialize the ViT block.
+        """Initialize the ViT module.
 
         Args:
             h_dim (int): Hidden dimension of the embedded patches.
             n_heads: Number of attention heads.
-            mlp_ratio: Multiplicative factor of the hidden dimension in the MLP layer. Defaults to 4 as per the paper.
+            mlp_ratio: Multiplicative factor of the hidden dimension in the MLP layer. Defaults to 4 as per the ViT paper.
         """
         self.h_dim = h_dim
         self.n_heads = n_heads
 
-        # (Rough) block architecture
+        # (Rough) module architecture
         self.layer_norm_1 = LayerNorm(h_dim)
         self.mha = MultiHeadAttention(h_dim, n_heads)
         self.layer_norm_2 = LayerNorm(h_dim)
@@ -73,7 +73,7 @@ class ViTBlock:
         # Cache for backprop
         x = self.cache["input"]
 
-        # For last ViT block, grad only contains CLS token gradient
+        # For last transformer block, grad only contains CLS token gradient
         if grad.shape != x.shape:
             grad_in = cp.zeros(x.shape)
             grad_in[:, 0] = grad
