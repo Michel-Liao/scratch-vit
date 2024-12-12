@@ -37,44 +37,76 @@ class MultiHeadAttention:
         self.softmax = [Softmax() for _ in range(self.n_heads)]
 
     def forward(self, sequences: cp.ndarray) -> cp.ndarray:
-        """Forward propagation.
+        """Forward propagation with parallel computation for heads.
 
         Args:
             sequences: input array.
 
         Returns:
-            computed multi head attention layer output.
+            computed multi-head attention layer output.
         """
         self.sequences = sequences
         self.scale = cp.sqrt(self.d_head)
-        # convert to list of n_heads elements with info of size (N, seq_length, dimension / n_heads)
-        sequences = cp.split(sequences, self.n_heads, axis=-1)
-        result = []
-        q_seq = []
-        k_seq = []
-        v_seq = []
-        attention_seq = []
-        for head in range(self.n_heads):
-            q_mapping = self.q_mappings[head]
-            k_mapping = self.k_mappings[head]
-            v_mapping = self.v_mappings[head]
-            seq = sequences[head]
-            q, k, v = q_mapping(seq), k_mapping(seq), v_mapping(seq)
-            q_seq.append(q)
-            k_seq.append(k)
-            v_seq.append(v)
-            attention_seq_head = self.softmax[head](
-                q @ k.transpose(0, 2, 1) / self.scale
-            )
-            attention_seq.append(attention_seq_head)
-            result.append(attention_seq_head @ v)
-        # convert to (N, seq_length, dimension)
-        self.result = cp.dstack(result)
-        self.q_seqs = cp.dstack(q_seq)
-        self.k_seqs = cp.dstack(k_seq)
-        self.v_seqs = cp.dstack(v_seq)
-        self.attention_seqs = cp.dstack(attention_seq)
+
+        # Split sequences into heads and stack for parallelism
+        sequences = cp.stack(cp.split(sequences, self.n_heads, axis=-1), axis=0)  # (n_heads, batch, seq_len, d_head)
+
+        # Apply linear mappings for Q, K, V in parallel
+        q_seqs = cp.stack([q_mapping(seq) for q_mapping, seq in zip(self.q_mappings, sequences)], axis=0)
+        k_seqs = cp.stack([k_mapping(seq) for k_mapping, seq in zip(self.k_mappings, sequences)], axis=0)
+        v_seqs = cp.stack([v_mapping(seq) for v_mapping, seq in zip(self.v_mappings, sequences)], axis=0)
+
+        # Compute scaled dot-product attention for all heads
+        scores = cp.matmul(q_seqs, k_seqs.transpose(0, 1, 3, 2)) / self.scale  # (n_heads, batch, seq_len, seq_len)
+        attention = cp.stack([softmax(score) for softmax, score in zip(self.softmax, scores)], axis=0)
+
+        # Compute attention-weighted values
+        result = cp.matmul(attention, v_seqs)  # (n_heads, batch, seq_len, d_head)
+
+        # Combine results across heads and return
+        self.result = cp.concatenate(cp.split(result, self.n_heads, axis=0), axis=-1).squeeze(0)  # (batch, seq_len, dimension)
+        self.q_seqs, self.k_seqs, self.v_seqs, self.attention_seqs = q_seqs, k_seqs, v_seqs, attention
         return self.result
+
+    # def forward(self, sequences: cp.ndarray) -> cp.ndarray:
+    #     """Forward propagation.
+
+    #     Args:
+    #         sequences: input array.
+
+    #     Returns:
+    #         computed multi head attention layer output.
+    #     """
+    #     self.sequences = sequences
+    #     self.scale = cp.sqrt(self.d_head)
+    #     # convert to list of n_heads elements with info of size (N, seq_length, dimension / n_heads)
+    #     sequences = cp.split(sequences, self.n_heads, axis=-1)
+    #     result = []
+    #     q_seq = []
+    #     k_seq = []
+    #     v_seq = []
+    #     attention_seq = []
+    #     for head in range(self.n_heads):
+    #         q_mapping = self.q_mappings[head]
+    #         k_mapping = self.k_mappings[head]
+    #         v_mapping = self.v_mappings[head]
+    #         seq = sequences[head]
+    #         q, k, v = q_mapping(seq), k_mapping(seq), v_mapping(seq)
+    #         q_seq.append(q)
+    #         k_seq.append(k)
+    #         v_seq.append(v)
+    #         attention_seq_head = self.softmax[head](
+    #             q @ k.transpose(0, 2, 1) / self.scale
+    #         )
+    #         attention_seq.append(attention_seq_head)
+    #         result.append(attention_seq_head @ v)
+    #     # convert to (N, seq_length, dimension)
+    #     self.result = cp.dstack(result)
+    #     self.q_seqs = cp.dstack(q_seq)
+    #     self.k_seqs = cp.dstack(k_seq)
+    #     self.v_seqs = cp.dstack(v_seq)
+    #     self.attention_seqs = cp.dstack(attention_seq)
+    #     return self.result
 
     def backward(self, error: cp.ndarray) -> None:
         """Backward propagation..
