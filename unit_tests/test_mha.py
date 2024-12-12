@@ -140,7 +140,7 @@ def set_parameters_externally_mha(
         namew = f"mha.q_mappings.{count}.weight"
         nameb = f"mha.q_mappings.{count}.bias"
         # Convert NumPy arrays to CuPy arrays
-        weight = cp.asarray(mapped_weights[namew].detach().numpy().T)
+        weight = cp.asarray(mapped_weights[namew].detach().numpy())
         bias = cp.asarray(mapped_weights[nameb].detach().numpy())
         q.init_params(weight, bias)
         # q.set_parameters_externally(weight, bias)
@@ -150,7 +150,7 @@ def set_parameters_externally_mha(
         namew = f"mha.k_mappings.{count}.weight"
         nameb = f"mha.k_mappings.{count}.bias"
         # Convert NumPy arrays to CuPy arrays
-        weight = cp.asarray(mapped_weights[namew].detach().numpy().T)
+        weight = cp.asarray(mapped_weights[namew].detach().numpy())
         bias = cp.asarray(mapped_weights[nameb].detach().numpy())
         k.init_params(weight, bias)
         # k.set_parameters_externally(weight, bias)
@@ -160,7 +160,7 @@ def set_parameters_externally_mha(
         namew = f"mha.v_mappings.{count}.weight"
         nameb = f"mha.v_mappings.{count}.bias"
         # Convert NumPy arrays to CuPy arrays
-        weight = cp.asarray(mapped_weights[namew].detach().numpy().T)
+        weight = cp.asarray(mapped_weights[namew].detach().numpy())
         bias = cp.asarray(mapped_weights[nameb].detach().numpy())
         v.init_params(weight, bias)
         # v.set_parameters_externally(weight, bias)
@@ -198,7 +198,7 @@ class TestLinearLayer(unittest.TestCase):
         set_parameters_externally_mha(custom_mha, mapped_params)
         custom_out = custom_mha.forward(input)
         # validate
-        decimal_place = 2
+        decimal_place = 3
         message = "NumPy and reference implementation not almost equal."
 
         np.testing.assert_array_almost_equal(

@@ -14,15 +14,13 @@ from model.optimizers import Optimizer, Adam
 class Linear:
     """Linear layer."""
 
-    def __init__(
-        self, in_size: int, out_size: int, bias: bool = True
-    ) -> None:
+    def __init__(self, in_size: int, out_size: int, bias: bool = True) -> None:
         """
         Args:
             in_size (int): The number of input features.
             out_size (int): The number of output features.
             bias (bool): Boolean determining whether the layer will learn an additive bias.
-        """ 
+        """
 
         self.in_size = in_size
         self.out_size = out_size
@@ -44,39 +42,29 @@ class Linear:
     def _init_params(self, method: str = "he") -> None:
         """
         Initialize the layer weights and biases.
-        
+
         Args:
-            method (str): Initialization method. Options include "he", "xavier", 
+            method (str): Initialization method. Options include "he", "xavier",
                           "normal", "uniform".
-        
+
         Returns:
             None
         """
 
         if method == "he":
-            self.w = cp.random.randn(
-                self.out_size, self.in_size
-            ) * cp.sqrt(2 / self.in_size)
+            self.w = cp.random.randn(self.out_size, self.in_size) * cp.sqrt(
+                2 / self.in_size
+            )
         elif method == "xavier":
             limit = cp.sqrt(6 / (self.in_size + self.out_size))
-            self.w = cp.random.uniform(
-                -limit,
-                limit,
-                (self.out_size, self.in_size)
-            )
+            self.w = cp.random.uniform(-limit, limit, (self.out_size, self.in_size))
         elif method == "normal":
-            self.w = cp.random.randn(
-                self.out_size, self.in_size
-            )
+            self.w = cp.random.randn(self.out_size, self.in_size)
         elif method == "uniform":
-            self.w = cp.random.uniform(
-                -1, -1, (self.out_size, self.in_size)
-            )
+            self.w = cp.random.uniform(-1, -1, (self.out_size, self.in_size))
         else:
             raise ValueError(f"Invalid initialization method {method}")
-        
-        if self.bias is not None: self.bias = cp.zeros(self.out_size)
-        
+
     def forward(self, x: cp.ndarray) -> cp.ndarray:
         """
         Forward propagation.
@@ -108,23 +96,22 @@ class Linear:
         """
 
         input = self.cache["input"]
-        if input is None: raise ValueError("Input to linear layer is none.")
+        if input is None:
+            raise ValueError("Input to linear layer is none.")
 
         output_grad = cp.dot(grad, self.w)
         if grad.ndim == 3:
-            self.grad_w = cp.sum(
-                cp.matmul(
-                    input.transpose(0, 2, 1), grad
-                ),
-                axis=0
-            )
-            if self.b is not None: self.grad_b = cp.sum(grad, axis=(0, 1))
+            self.grad_w = cp.sum(cp.matmul(grad.transpose(0, 2, 1), input), axis=0)
+
+            if self.b is not None:
+                self.grad_b = cp.sum(grad, axis=(0, 1))
         elif grad.ndim == 2:
-            self.grad_w = cp.dot(input.T, grad)
-            if self.b is not None: self.grad_b = grad.sum(axis=0)
+            self.grad_w = cp.dot(grad.T, input)
+            if self.b is not None:
+                self.grad_b = grad.sum(axis=0)
         else:
             raise ValueError(f"Invalid grad dimension of {grad.ndim}, expected 2 or 3.")
-        
+
         return output_grad
 
     def init_optimizer(self, optimizer: Optimizer) -> None:
@@ -158,13 +145,13 @@ class Linear:
         Returns:
             None
         """
-        if w.shape != (self.out_features, self.in_features):
+        if w.shape != (self.out_size, self.in_size):
             raise ValueError("Invalid shape for weight matrix.")
-        if b.shape != (self.out_features,):
+        if b.shape[0] != (self.out_size):
             raise ValueError("Invalid shape for bias vector.")
 
-        self.weight = w
-        self.bias = b
+        self.w = w
+        self.b = b
 
     def get_grads(self) -> Tuple[cp.ndarray, cp.ndarray]:
         """
@@ -193,4 +180,3 @@ class Linear:
             cp.ndarray: Biases.
         """
         return self.b
-
