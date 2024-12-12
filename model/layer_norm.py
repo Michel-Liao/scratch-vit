@@ -139,7 +139,7 @@ class LayerNorm:
         Returns:
             None
         """
-        self.weight = self.optimizer_w.update(self.grad_g, self.weight)
+        self.weight = self.optimizer_w.update(self.grad_w, self.weight)
         if self.bias is not None:
             self.bias = self.optimizer_b.update(self.grad_b, self.bias)
 

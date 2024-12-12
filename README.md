@@ -71,6 +71,12 @@ To run the unit tests:
 * Issue of no positional embedding PyTorch implementation... just have to be careful. Created some unit tests for shapes.
 * Initial implementation of linear layer used the formula z = x @ W.T + b. Switched it back to z = W @ x + b because dimensions weren't working in MHA.
 * ViTBlock backward pass commment. Important to talk about!
+* Exploding gradients / vanishing
+* cp.newaxis issues
+* optimizing z = x @ W.T + b
+* stacking CLS token/how to process
+* figuring out MHA
+* how to parallelize
 
 ## Ideas
 * Compare our ViT attention maps/visualize with official implementation

@@ -44,14 +44,14 @@ class CategoricalCrossEntropyLoss:
             Tuple[float, cp.ndarray]: Loss and probabilities (B, C).
         """
         # Convert logits to probabilities using softmax
-        probs = cp.clip(self.softmax(logits), 1e-12, 1.0)  # Clip to avoid log(0)
+        self.probs = cp.clip(self.softmax(logits), 1e-12, 1.0)  # Clip to avoid log(0)
 
         # Compute mean loss for mini-batch
-        loss = -cp.sum(labels * cp.log(probs)) / logits.shape[0]
+        loss = -cp.sum(labels * cp.log(self.probs)) / logits.shape[0]
 
-        return loss, probs
+        return loss
 
-    def backward(self, probs, labels):
+    def backward(self, labels):
         """
         Computes gradient of cross-entropy loss with respect to logits.
 
@@ -62,6 +62,6 @@ class CategoricalCrossEntropyLoss:
         Returns:
             cp.ndarray: Gradient of loss with respect to logits (B, C).
         """
-        grad = (probs - labels) / labels.shape[0]
+        grad = (self.probs - labels) / labels.shape[0]
 
         return grad

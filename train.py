@@ -8,7 +8,7 @@ import cupy as cp
 import tqdm
 
 
-class ViTNumPy:
+class VisionTransformer:
     """VIT implementation Wrapper."""
 
     def __init__(
@@ -70,11 +70,12 @@ class ViTNumPy:
             x, y = batch
             x = x.transpose(1, 0)
             x = x.reshape(self.batch_size, 1, 28, 28)
+            y = y[:, cp.newaxis]
             y_hat = self.model.forward(x)
             loss = self.loss_function.forward(y_hat, y)
-            error = self.loss_function.backward()
+            error = self.loss_function.backward(y)
             self.model.backward(error)
-            self.model.update_weights()
+            self.model.update_params()
             train_error.append(loss)
         print(cp.mean(train_error))
 
