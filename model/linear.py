@@ -32,10 +32,10 @@ class Linear:
         else:
             self.b = None
         self.cache = dict(input=None)
-        self.set_parameters()
-        self.set_optimizer(Adam())
+        self._init_params()
+        self.init_optimizer(Adam())
 
-    def set_parameters(self) -> None:
+    def _init_params(self) -> None:
         """Set parameters."""
         stdv = 1.0 / cp.sqrt(self.in_features_size)
         self.w = cp.random.uniform(-stdv, stdv, self.w.shape)
@@ -80,7 +80,7 @@ class Linear:
                 self.grad_b = grad.sum(axis=0)
             return output_grad
 
-    def set_optimizer(self, optimizer: Optimizer) -> None:
+    def init_optimizer(self, optimizer: Optimizer) -> None:
         """Set optimizer.
 
         Args:
@@ -106,7 +106,7 @@ class Linear:
         """
         return self.forward(x)
 
-    def set_parameters_externally(self, w: cp.ndarray, b: cp.ndarray) -> None:
+    def init_params(self, w: cp.ndarray, b: cp.ndarray) -> None:
         """Set parameters externally. used for testing.
 
         Args:

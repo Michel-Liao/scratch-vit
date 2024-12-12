@@ -111,24 +111,27 @@ class MultiHeadAttention:
             final_error.append(seq_error)
         return cp.dstack(final_error)
 
-    def set_optimizer(self, optimizer: object) -> None:
-        """Set optimizer.
+    def init_optimizer(self, optimizer: object) -> None:
+        """Initializes optimizers.
 
         Args:
             optimizer: optimizer.
         """
         for v_mapping in self.v_mappings:
-            v_mapping.set_optimizer(optimizer)
+            v_mapping.init_optimizer(optimizer)
         for q_mapping in self.q_mappings:
-            q_mapping.set_optimizer(optimizer)
+            q_mapping.init_optimizer(optimizer)
         for k_mapping in self.k_mappings:
-            k_mapping.set_optimizer(optimizer)
+            k_mapping.init_optimizer(optimizer)
 
-    def update_weights(self) -> None:
+    def update_params(self) -> None:
         """Update weights based on the calculated gradients."""
         for v_mapping in self.v_mappings:
-            v_mapping.update_weights()
+            v_mapping.update_params()
         for q_mapping in self.q_mappings:
-            q_mapping.update_weights()
+            q_mapping.update_params()
         for k_mapping in self.k_mappings:
-            k_mapping.update_weights()
+            k_mapping.update_params()
+
+    def __call__(self):
+        return self.forward(self.sequences)
