@@ -151,8 +151,8 @@ class VisionTransformer:
             im_dim=(1, 28, 28),
             n_patches=7,
             h_dim=768,
-            n_heads=4,
-            num_blocks=4,
+            n_heads=12,
+            num_blocks=12,
             classes=10,
         )
         self.loss_function = CrossEntropyLoss()
@@ -173,7 +173,7 @@ def parse_args():
         dest="path_to_mnist",
         required=True,
     )
-    parser.add_argument("--batch_size", dest="batch_size", required=False, default=96)
+    parser.add_argument("--batch_size", dest="batch_size", required=False, default=16)
     parser.add_argument("--epochs", dest="epochs", required=False, default=2)
     parser.add_argument(
         "--test_epoch_interval", dest="test_epoch_interval", required=False, default=2
