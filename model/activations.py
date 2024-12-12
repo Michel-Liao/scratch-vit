@@ -93,3 +93,6 @@ class GELU(Activation):
         pdf = cp.exp(-0.5 * cp.power(self.x, 2)) / cp.sqrt(2 * cp.pi)
 
         return (grad * (self.cdf + self.x * pdf)).astype(self.x.dtype)
+
+    def __call__(self, x: cp.ndarray) -> cp.ndarray:
+        return self.forward(x)

@@ -48,7 +48,7 @@ class ViT:
         self.class_token = Parameter(cp.random.rand(1, self.h_dim))
 
         # TODO: FIGURE THIS OUT
-        self.pos_embed = PositionalEmbedding(n_patches, h_dim)
+        self.pos_embed = PositionalEmbedding(n_patches**2 + 1, h_dim)
 
         self.blocks = [TransformerBlock(h_dim, n_heads) for _ in range(num_blocks)]
 
@@ -84,10 +84,10 @@ class ViT:
         Returns:
             computed linear layer output.
         """
-        patches = patchify(images, self.n_patches)
+        patches = patchify(images, int(self.patch_size[0]))
         tokens = self.linear_proj(patches)
         out = cp.stack(
-            [cp.vstack((self.class_token.val, tokens[i])) for i in range(len(tokens))]
+            [cp.vstack((self.class_token.cls, tokens[i])) for i in range(len(tokens))]
         )
         out = self.pos_embed(out)
 

@@ -26,7 +26,7 @@ class Parameter:
         self.optimizer = copy.deepcopy(optimizer)
 
     def update_params(self) -> None:
-        self.val = self.optimizer.update(self.cache["grad"], self.val)
+        self.cls = self.optimizer.update(self.cache["grad"], self.cls)
 
     def backward(self, grad: cp.ndarray) -> None:
         """Backward propagation.

@@ -1,10 +1,10 @@
 import argparse
 import os
 
-import numpy as np
 from model.loss import CategoricalCrossEntropyLoss as CrossEntropyLoss
 from model.optimizers import Adam
 from model.vit_finished import ViT
+import cupy as cp
 import tqdm
 
 
@@ -28,7 +28,7 @@ class ViTNumPy:
         self.test_epoch_interval = test_epoch_interval
         self.load_dataset_from_file(path_to_mnist)
 
-    def datafeeder(self, x: np.ndarray, y: np.ndarray, shuffle: bool = False):
+    def datafeeder(self, x: cp.ndarray, y: cp.ndarray, shuffle: bool = False):
         """Datafeeder for train test.
 
         Args:
@@ -40,8 +40,8 @@ class ViTNumPy:
             a batch of data
         """
         if shuffle:
-            randomize = np.arange(len(y))
-            np.random.shuffle(randomize)
+            randomize = cp.arange(len(y))
+            cp.random.shuffle(randomize)
             x = x[:, randomize]
             y = y[randomize]
         for i in range(0, len(y), self.batch_size):
@@ -54,12 +54,12 @@ class ViTNumPy:
             path_to_mnist: path to folder containing mnist.
         """
         with open(os.path.join(path_to_mnist, "mnist_train.npy"), "rb") as f:
-            self.x_train = np.load(f)
-            self.y_train = np.load(f)
+            self.x_train = cp.load(f)
+            self.y_train = cp.load(f)
 
         with open(os.path.join(path_to_mnist, "mnist_test.npy"), "rb") as f:
-            self.x_test = np.load(f)
-            self.y_test = np.load(f)
+            self.x_test = cp.load(f)
+            self.y_test = cp.load(f)
 
     def train_iter(self) -> None:
         """Train model for one epoch."""
@@ -76,7 +76,7 @@ class ViTNumPy:
             self.model.backward(error)
             self.model.update_weights()
             train_error.append(loss)
-        print(np.mean(train_error))
+        print(cp.mean(train_error))
 
     def test_iter(self) -> None:
         """Test model."""
@@ -91,13 +91,13 @@ class ViTNumPy:
             x = x.reshape(self.batch_size, 1, 28, 28)
             y_hat = self.model.forward(x)
             loss = self.loss_function.forward(y_hat, y)
-            y_pred = np.argmax(y_hat, axis=-1)
-            correct = np.sum(y_pred == y)
-            total = np.size(y)
+            y_pred = cp.argmax(y_hat, axis=-1)
+            correct = cp.sum(y_pred == y)
+            total = cp.size(y)
             epoch_tp += correct
             epoch_total += total
             test_error.append(loss)
-        print("test error", np.mean(test_error))
+        print("test error", cp.mean(test_error))
         print("test acc", epoch_tp / epoch_total)
 
     def train_model(self) -> None:
