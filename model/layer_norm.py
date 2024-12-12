@@ -33,9 +33,9 @@ class LayerNorm:
         self.bias = cp.zeros(normalized_shape)
         self.cache = {}
 
-        self._init_optimizers(optimizer=Adam())
+        self.init_optimizer(optimizer=Adam())
 
-    def _init_optimizers(self, optimizer: Optimizer) -> None:
+    def init_optimizer(self, optimizer: Optimizer) -> None:
         """
         Initialize optimizers for weight and bias.
 

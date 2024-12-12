@@ -103,16 +103,16 @@ class ViTNumPy:
     def train_model(self) -> None:
         """Train model."""
         self.model = ViT(
-            chw=(1, 28, 28),
+            im_dim=(1, 28, 28),
             n_patches=7,
-            hidden_d=8,
+            h_dim=8,
             n_heads=2,
             num_blocks=2,
-            out_classses=10,
+            classes=10,
         )
         self.loss_function = CrossEntropyLoss()
         self.optimizer = Adam()  # SGD()
-        self.model.set_optimizer(self.optimizer)
+        self.model.init_optimizer(self.optimizer)
         for epoch in range(self.epochs):
             self.train_iter()
             if epoch % self.test_epoch_interval == 0:
