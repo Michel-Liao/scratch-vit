@@ -77,6 +77,8 @@ To run the unit tests:
 * stacking CLS token/how to process
 * figuring out MHA
 * how to parallelize
+* not calculating softmax before classification
+* didn't one-hot encode the mnist crap
 
 ## Ideas
 * Compare our ViT attention maps/visualize with official implementation

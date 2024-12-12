@@ -59,7 +59,9 @@ class Adam(Optimizer):
         """
         # Gradient check
         if cp.any(cp.isnan(grad)) or cp.any(cp.isinf(grad)):
-            raise ValueError("Gradient contains NaN or infinite values")
+            raise ValueError(
+                f"Gradient contains NaN {cp.any(cp.isnan(grad))} or infinite {cp.any(cp.isinf(grad))} values"
+            )
 
         # Initialize momentum vectors
         if self.m is None or self.v is None:

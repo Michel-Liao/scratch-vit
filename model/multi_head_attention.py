@@ -64,7 +64,7 @@ class MultiHeadAttention:
             k_seq.append(k)
             v_seq.append(v)
             attention_seq_head = self.softmax[head](
-                q @ k.transpose(0, 2, 1) / (self.d_head**0.5)
+                q @ k.transpose(0, 2, 1) / self.scale
             )
             attention_seq.append(attention_seq_head)
             result.append(attention_seq_head @ v)
