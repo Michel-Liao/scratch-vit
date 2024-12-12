@@ -132,40 +132,73 @@ class MultiHeadAttention:
     #     self.attention_seqs = cp.dstack(attention_seq)
     #     return self.result
 
-    def backward(self, error: cp.ndarray) -> None:
-        """Backward propagation..
+    def backward(self, error: cp.ndarray) -> cp.ndarray:
+        """Backward propagation with parallel computation for heads.
 
         Args:
-            grad: represents the gradient w.r.t. the output. Defaults to None.
+            error: Gradient of the loss with respect to the output.
 
         Returns:
-            the gradients w.r.t. the input.
+            Gradient of the loss with respect to the input.
         """
-        error_head_split = cp.split(error, self.n_heads, axis=-1)
-        attention_seqs_split = cp.split(self.attention_seqs, self.n_heads, axis=-1)
-        q_seqs_split = cp.split(self.q_seqs, self.n_heads, axis=-1)
-        k_seqs_split = cp.split(self.k_seqs, self.n_heads, axis=-1)
-        v_seqs_split = cp.split(self.v_seqs, self.n_heads, axis=-1)
+        # Split error into head-wise components
+        error_head_split = cp.stack(cp.split(error, self.n_heads, axis=-1), axis=0)  # (n_heads, batch, seq_len, d_head)
 
-        final_error = []
-        for i in range(self.n_heads):
-            err_attn = error_head_split[i] @ v_seqs_split[i].transpose(0, 2, 1)
-            pre_attn_error = self.softmax[i].backward(err_attn)
-            v_grad_in = attention_seqs_split[i].transpose(0, 2, 1) @ error_head_split[i]
-            error_v_out_i = self.v_mappings[i].backward(v_grad_in)
+        # Compute gradients for each head in parallel
+        err_attn = cp.matmul(error_head_split, self.v_seqs.transpose(0, 1, 3, 2))  # (n_heads, batch, seq_len, seq_len)
+        pre_attn_error = cp.stack([softmax.backward(err) for softmax, err in zip(self.softmax, err_attn)], axis=0)
 
-            k_error = (q_seqs_split[i].transpose(0, 2, 1) @ pre_attn_error) / (
-                self.d_head**0.5
-            )
-            k_error = k_error.transpose(0, 2, 1)
-            error_k_out_i = self.k_mappings[i].backward(k_error)
+        # Compute gradients for V
+        v_grad_in = cp.matmul(self.attention_seqs.transpose(0, 1, 3, 2), error_head_split)  # (n_heads, batch, seq_len, d_head)
+        error_v_out = cp.stack([v_mapping.backward(vg) for v_mapping, vg in zip(self.v_mappings, v_grad_in)], axis=0)
 
-            q_error = (pre_attn_error @ k_seqs_split[i]) / (self.d_head**0.5)
-            error_q_out_i = self.q_mappings[i].backward(q_error)
+        # Compute gradients for K
+        k_error = cp.matmul(self.q_seqs.transpose(0, 1, 3, 2), pre_attn_error) / self.scale  # (n_heads, batch, seq_len, d_head)
+        error_k_out = cp.stack([k_mapping.backward(k_err.transpose(0, 1, 3, 2)) for k_mapping, k_err in zip(self.k_mappings, k_error)], axis=0)
 
-            seq_error = error_q_out_i + error_k_out_i + error_v_out_i
-            final_error.append(seq_error)
-        return cp.dstack(final_error)
+        # Compute gradients for Q
+        q_error = cp.matmul(pre_attn_error, self.k_seqs) / self.scale  # (n_heads, batch, seq_len, d_head)
+        error_q_out = cp.stack([q_mapping.backward(q_err) for q_mapping, q_err in zip(self.q_mappings, q_error)], axis=0)
+
+        # Combine gradients for all heads
+        seq_error = error_q_out + error_k_out + error_v_out
+        return cp.concatenate(cp.split(seq_error, self.n_heads, axis=0), axis=-1).squeeze(0)  # (batch, seq_len, dimension)
+
+
+    # def backward(self, error: cp.ndarray) -> None:
+    #     """Backward propagation..
+
+    #     Args:
+    #         grad: represents the gradient w.r.t. the output. Defaults to None.
+
+    #     Returns:
+    #         the gradients w.r.t. the input.
+    #     """
+    #     error_head_split = cp.split(error, self.n_heads, axis=-1)
+    #     attention_seqs_split = cp.split(self.attention_seqs, self.n_heads, axis=-1)
+    #     q_seqs_split = cp.split(self.q_seqs, self.n_heads, axis=-1)
+    #     k_seqs_split = cp.split(self.k_seqs, self.n_heads, axis=-1)
+    #     v_seqs_split = cp.split(self.v_seqs, self.n_heads, axis=-1)
+
+    #     final_error = []
+    #     for i in range(self.n_heads):
+    #         err_attn = error_head_split[i] @ v_seqs_split[i].transpose(0, 2, 1)
+    #         pre_attn_error = self.softmax[i].backward(err_attn)
+    #         v_grad_in = attention_seqs_split[i].transpose(0, 2, 1) @ error_head_split[i]
+    #         error_v_out_i = self.v_mappings[i].backward(v_grad_in)
+
+    #         k_error = (q_seqs_split[i].transpose(0, 2, 1) @ pre_attn_error) / (
+    #             self.d_head**0.5
+    #         )
+    #         k_error = k_error.transpose(0, 2, 1)
+    #         error_k_out_i = self.k_mappings[i].backward(k_error)
+
+    #         q_error = (pre_attn_error @ k_seqs_split[i]) / (self.d_head**0.5)
+    #         error_q_out_i = self.q_mappings[i].backward(q_error)
+
+    #         seq_error = error_q_out_i + error_k_out_i + error_v_out_i
+    #         final_error.append(seq_error)
+    #     return cp.dstack(final_error)
 
     def init_optimizer(self, optimizer: object) -> None:
         """Initializes optimizers.
