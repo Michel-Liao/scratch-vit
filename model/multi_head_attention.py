@@ -49,23 +49,47 @@ class MultiHeadAttention:
         self.scale = cp.sqrt(self.d_head)
 
         # Split sequences into heads and stack for parallelism
-        sequences = cp.stack(cp.split(sequences, self.n_heads, axis=-1), axis=0)  # (n_heads, batch, seq_len, d_head)
+        sequences = cp.stack(
+            cp.split(sequences, self.n_heads, axis=-1), axis=0
+        )  # (n_heads, batch, seq_len, d_head)
 
         # Apply linear mappings for Q, K, V in parallel
-        q_seqs = cp.stack([q_mapping(seq) for q_mapping, seq in zip(self.q_mappings, sequences)], axis=0)
-        k_seqs = cp.stack([k_mapping(seq) for k_mapping, seq in zip(self.k_mappings, sequences)], axis=0)
-        v_seqs = cp.stack([v_mapping(seq) for v_mapping, seq in zip(self.v_mappings, sequences)], axis=0)
+        q_seqs = cp.stack(
+            [q_mapping(seq) for q_mapping, seq in zip(self.q_mappings, sequences)],
+            axis=0,
+        )
+        k_seqs = cp.stack(
+            [k_mapping(seq) for k_mapping, seq in zip(self.k_mappings, sequences)],
+            axis=0,
+        )
+        v_seqs = cp.stack(
+            [v_mapping(seq) for v_mapping, seq in zip(self.v_mappings, sequences)],
+            axis=0,
+        )
 
         # Compute scaled dot-product attention for all heads
-        scores = cp.matmul(q_seqs, k_seqs.transpose(0, 1, 3, 2)) / self.scale  # (n_heads, batch, seq_len, seq_len)
-        attention = cp.stack([softmax(score) for softmax, score in zip(self.softmax, scores)], axis=0)
+        scores = (
+            cp.matmul(q_seqs, k_seqs.transpose(0, 1, 3, 2)) / self.scale
+        )  # (n_heads, batch, seq_len, seq_len)
+        attention = cp.stack(
+            [softmax(score) for softmax, score in zip(self.softmax, scores)], axis=0
+        )
 
         # Compute attention-weighted values
         result = cp.matmul(attention, v_seqs)  # (n_heads, batch, seq_len, d_head)
 
         # Combine results across heads and return
-        self.result = cp.concatenate(cp.split(result, self.n_heads, axis=0), axis=-1).squeeze(0)  # (batch, seq_len, dimension)
-        self.q_seqs, self.k_seqs, self.v_seqs, self.attention_seqs = q_seqs, k_seqs, v_seqs, attention
+        self.result = cp.concatenate(
+            cp.split(result, self.n_heads, axis=0), axis=-1
+        ).squeeze(
+            0
+        )  # (batch, seq_len, dimension)
+        self.q_seqs, self.k_seqs, self.v_seqs, self.attention_seqs = (
+            q_seqs,
+            k_seqs,
+            v_seqs,
+            attention,
+        )
         return self.result
 
     # def forward(self, sequences: cp.ndarray) -> cp.ndarray:
