@@ -39,7 +39,7 @@ class TestLinear(unittest.TestCase):
         # Copy weights and biases to PyTorch implementation
         with torch.no_grad():
             torch_linear.weight.data = torch.FloatTensor(
-                cp.asnumpy(custom_linear.get_weight().T)
+                cp.asnumpy(custom_linear.get_weight())
             )
             torch_linear.bias.data = torch.FloatTensor(
                 cp.asnumpy(custom_linear.get_bias())
@@ -70,10 +70,10 @@ class TestLinear(unittest.TestCase):
         # Copy weights and biases to PyTorch implementation
         with torch.no_grad():
             torch_linear.weight.data = torch.FloatTensor(
-                cp.asnumpy(custom_linear.get_weight().T)
+                cp.asnumpy(custom_linear.get_weight())
             )
             torch_linear.bias.data = torch.FloatTensor(
-                cp.asnumpy(custom_linear.get_bias().T)
+                cp.asnumpy(custom_linear.get_bias())
             )
 
         torch_output = torch_linear(x_torch)
@@ -95,7 +95,7 @@ class TestLinear(unittest.TestCase):
             cp.asnumpy(custom_grad_x), x_torch.grad.numpy(), rtol=1e-5, atol=1e-5
         )
         np.testing.assert_allclose(
-            cp.asnumpy(custom_grad_w), torch_grad_w.T, rtol=1e-5, atol=1e-5
+            cp.asnumpy(custom_grad_w), torch_grad_w, rtol=1e-5, atol=1e-5
         )
         np.testing.assert_allclose(
             cp.asnumpy(custom_grad_b), torch_grad_b, rtol=1e-5, atol=1e-5
@@ -125,7 +125,7 @@ class TestLinear(unittest.TestCase):
         # Copy weights and biases to PyTorch implementation
         with torch.no_grad():
             torch_linear.weight.data = torch.FloatTensor(
-                cp.asnumpy(custom_linear.get_weight().T)
+                cp.asnumpy(custom_linear.get_weight())
             )
             torch_linear.bias.data = torch.FloatTensor(
                 cp.asnumpy(custom_linear.get_bias())
@@ -148,7 +148,7 @@ class TestLinear(unittest.TestCase):
             cp.asnumpy(custom_grad_x1), x1_torch.grad.numpy(), rtol=1e-5, atol=1e-5
         )
         np.testing.assert_allclose(
-            cp.asnumpy(custom_grad_w1), torch_grad_w1.T, rtol=1e-5, atol=1e-5
+            cp.asnumpy(custom_grad_w1), torch_grad_w1, rtol=1e-5, atol=1e-5
         )
         np.testing.assert_allclose(
             cp.asnumpy(custom_grad_b1), torch_grad_b1, rtol=1e-5, atol=1e-5
@@ -181,7 +181,7 @@ class TestLinear(unittest.TestCase):
             cp.asnumpy(custom_grad_x2), x2_torch.grad.numpy(), rtol=1e-3, atol=1e-5
         )
         np.testing.assert_allclose(
-            cp.asnumpy(custom_grad_w2), torch_grad_w2.T, rtol=1e-3, atol=1e-5
+            cp.asnumpy(custom_grad_w2), torch_grad_w2, rtol=1e-3, atol=1e-5
         )
         np.testing.assert_allclose(
             cp.asnumpy(custom_grad_b2), torch_grad_b2, rtol=1e-3, atol=1e-5
@@ -203,7 +203,7 @@ class TestLinear(unittest.TestCase):
 
         with torch.no_grad():
             torch_linear.weight.data = torch.FloatTensor(
-                cp.asnumpy(custom_linear.get_weight().T)
+                cp.asnumpy(custom_linear.get_weight())
             )
 
         custom_output = cp.asnumpy(custom_linear(x_cupy))

@@ -14,114 +14,153 @@ from model.optimizers import Optimizer, Adam
 class Linear:
     """Linear layer."""
 
-    def __init__(
-        self, in_features_size: int, out_features_size: int, bias: bool = True
-    ) -> None:
-        """Initialize.
-
-        Args:
-            in_features_size: size of each input sample.
-            out_features_size: size of each output sample.
-            bias: if set to False layer will not learn additive bias. Defaults to True.
+    def __init__(self, in_size: int, out_size: int, bias: bool = True) -> None:
         """
-        self.in_features_size = in_features_size
-        # in general w is defined as [out_features_size, in_features_size] however used the opp.
-        self.w = cp.zeros([in_features_size, out_features_size])
-        if bias:
-            self.b = cp.zeros([out_features_size])
-        else:
-            self.b = None
-        self.cache = dict(input=None)
+        Args:
+            in_size (int): The number of input features.
+            out_size (int): The number of output features.
+            bias (bool): Boolean determining whether the layer will learn an additive bias.
+        """
+
+        self.in_size = in_size
+        self.out_size = out_size
+
+        self.w = cp.zeros([out_size, in_size])
+        self.b = cp.zeros([out_size]) if bias else None
+
+        self.grad_w = None
+        self.grad_b = None
+
+        self.cache = {"input": None}
+
         self._init_params()
         self.init_optimizer(Adam())
 
-    def _init_params(self) -> None:
-        """Set parameters."""
-        stdv = 1.0 / cp.sqrt(self.in_features_size)
-        self.w = cp.random.uniform(-stdv, stdv, self.w.shape)
-        if self.b is not None:
-            self.b = cp.random.uniform(-stdv, stdv, self.b.shape)
+    def __call__(self, x: cp.ndarray) -> cp.ndarray:
+        return self.forward(x)
+
+    def _init_params(self, method: str = "he") -> None:
+        """
+        Initialize the layer weights and biases.
+
+        Args:
+            method (str): Initialization method. Options include "he", "xavier",
+                          "normal", "uniform".
+
+        Returns:
+            None
+        """
+
+        if method == "he":
+            self.w = cp.random.randn(self.out_size, self.in_size) * cp.sqrt(
+                2 / self.in_size
+            )
+        elif method == "xavier":
+            limit = cp.sqrt(6 / (self.in_size + self.out_size))
+            self.w = cp.random.uniform(-limit, limit, (self.out_size, self.in_size))
+        elif method == "normal":
+            self.w = cp.random.randn(self.out_size, self.in_size)
+        elif method == "uniform":
+            self.w = cp.random.uniform(-1, -1, (self.out_size, self.in_size))
+        else:
+            raise ValueError(f"Invalid initialization method {method}")
 
     def forward(self, x: cp.ndarray) -> cp.ndarray:
-        """Forward propagation.
+        """
+        Forward propagation.
 
         Args:
-            x: input array.
+            x (cp.ndarray): Input array.
 
         Returns:
-            computed linear layer output.
+            cp.ndarray: Computed linear layer output.
         """
-        y = cp.dot(x, self.w)
+
+        self.cache["input"] = x
+
+        z = cp.dot(x, self.w.T)
         if self.b is not None:
-            y += self.b
-        self.cache = dict(input=x)
-        return y
+            z += self.b
+
+        return z
 
     def backward(self, grad: cp.ndarray) -> cp.ndarray:
-        """Backward propagation.
+        """
+        Backward propagation.
 
         Args:
-            grad: represents the gradient w.r.t. the output. Defaults to None.
+            grad (cp.ndarray): Gradient of the loss with respect to the output of the linear layer.
 
         Returns:
-            the gradients w.r.t. the input.
+            cp.ndarray: Gradient of the loss with respect to the input of the linear layer.
         """
+
         input = self.cache["input"]
-        if len(grad.shape) == 3:
-            output_grad = cp.dot(grad, self.w.T)
-            self.grad_w = cp.sum(cp.matmul(input.transpose(0, 2, 1), grad), axis=0)
+        if input is None:
+            raise ValueError("Input to linear layer is none.")
+
+        output_grad = cp.dot(grad, self.w)
+        if grad.ndim == 3:
+            self.grad_w = cp.sum(cp.matmul(grad.transpose(0, 2, 1), input), axis=0)
+
             if self.b is not None:
                 self.grad_b = cp.sum(grad, axis=(0, 1))
-            return output_grad
-        else:
-            output_grad = cp.dot(grad, self.w.T)
-            self.grad_w = cp.dot(input.T, grad)
+        elif grad.ndim == 2:
+            self.grad_w = cp.dot(grad.T, input)
             if self.b is not None:
                 self.grad_b = grad.sum(axis=0)
-            return output_grad
+        else:
+            raise ValueError(f"Invalid grad dimension of {grad.ndim}, expected 2 or 3.")
+
+        return output_grad
 
     def init_optimizer(self, optimizer: Optimizer) -> None:
-        """Set optimizer.
+        """
+        Initialize the layer optimizer.
 
         Args:
-            optimizer: optimizer.
+            optimizer (Optimizer): The layer optimizer.
         """
+
         self.optimizer_w = copy.deepcopy(optimizer)
         self.optimizer_b = copy.deepcopy(optimizer)
 
     def update_params(self) -> None:
-        """Update weights based on the calculated gradients."""
+        """
+        Update weights based on the calculated gradients.
+        """
+
         self.w = self.optimizer_w.update(self.grad_w, self.w)
         if self.b is not None:
             self.b = self.optimizer_b.update(self.grad_b, self.b)
 
-    def __call__(self, x: cp.ndarray) -> cp.ndarray:
-        """Defining __call__ method to enable function like call.
+    def init_params(self, w: cp.ndarray, b: cp.ndarray) -> None:
+        """
+        Initialize weights and biases manually (for unit tests).
 
         Args:
-            x: input array.
+            w (cp.ndarray): Weight matrix of shape [out_features, in_features].
+            b (cp.ndarray): Bias vector of shape [out_features].
 
         Returns:
-            computed linear output.
+            None
         """
-        return self.forward(x)
+        if w.shape != (self.out_size, self.in_size):
+            raise ValueError("Invalid shape for weight matrix.")
+        if b.shape[0] != (self.out_size):
+            raise ValueError("Invalid shape for bias vector.")
 
-    def init_params(self, w: cp.ndarray, b: cp.ndarray) -> None:
-        """Set parameters externally. used for testing.
-
-        Args:
-            w: weight.
-            b: bias.
-        """
         self.w = w
         self.b = b
 
     def get_grads(self) -> Tuple[cp.ndarray, cp.ndarray]:
-        """Access gradients.used for testing.
+        """
+        Get gradients of weights and biases.
 
         Returns:
-            returns gradients
+            Tuple[cp.ndarray, cp.ndarray]: Gradients of weights and biases.
         """
+
         return self.grad_w, self.grad_b
 
     def get_weight(self) -> cp.ndarray:
@@ -141,189 +180,3 @@ class Linear:
             cp.ndarray: Biases.
         """
         return self.b
-
-
-# class Linear:
-#     """
-#     Linear layer with weight matrix of shape [out_features, in_features] for performance reasons.
-
-#     Performs the operation: z = x @ W.T + b (if bias is True)
-#     """
-
-#     def __init__(
-#         self, in_features: int, out_features: int, bias: bool = True, init="he"
-#     ) -> None:
-#         """Initialize instance variables.
-
-#         Args:
-#             in_features (int): Number of input features.
-#             out_features (int): Number of output features.
-#             bias (bool): Include bias? Default is True.
-
-#         Returns:
-#             None
-#         """
-#         self.in_features = in_features
-#         self.out_features = out_features
-#         if bias:
-#             self.bias = cp.zeros(out_features)
-#         else:
-#             self.bias = None
-#         self.cache = {}
-#         self._init_params(init=init)
-#         self._init_optimizers(optimizer=Adam())
-
-#     def _init_params(self, init="he") -> None:
-#         """Initialize weights and biases.
-
-#         Args:
-#             init (str): Initialization method. Default is "he". Options are "he", "xavier", "normal", "uniform".
-
-#         Returns:
-#             None
-#         """
-#         if init == "he":
-#             self.weight = cp.random.randn(
-#                 self.out_features, self.in_features
-#             ) * cp.sqrt(2 / self.in_features)
-#         elif init == "xavier":
-#             self.weight = cp.random.randn(
-#                 self.out_features, self.in_features
-#             ) * cp.sqrt(1 / self.in_features)
-#         elif init == "normal":
-#             self.weight = cp.random.randn(self.out_features, self.in_features)
-#         elif init == "uniform":
-#             self.weight = cp.random.uniform(
-#                 -1, 1, (self.out_features, self.in_features)
-#             )
-#         else:
-#             raise ValueError("Invalid initialization method.")
-
-#         if self.bias is not None:
-#             self.bias = cp.zeros(self.out_features)
-
-#     def _init_optimizers(self, optimizer: Optimizer) -> None:
-#         """
-#         Initialize optimizers for weights and biases.
-
-#         Args:
-#             optimizer (Optimizer): Optimizer object.
-
-#         Returns:
-#             None
-#         """
-#         self.optimizer_w = copy.deepcopy(optimizer)
-#         self.optimizer_b = copy.deepcopy(optimizer)
-
-#     def update_params(self) -> None:
-#         """
-#         Update weights and biases.
-
-#         Returns:
-#             None
-#         """
-#         self.weight = self.optimizer_w.update(self.grad_w, self.weight)
-#         if self.bias is not None:
-#             self.bias = self.optimizer_b.update(self.grad_b, self.bias)
-
-#     def forward(self, x: cp.ndarray) -> cp.ndarray:
-#         """
-#         Forward pass according to the operation: z = x @ W.T + b.
-
-#         Args:
-#             x (cp.ndarray): Input of shape [batch_size, in_features].
-
-#         Returns:
-#             cp.ndarray: Output of shape [batch_size, out_features].
-#         """
-
-#         # Cache input
-#         self.cache["input"] = x
-
-#         # Forward pass
-#         z = cp.dot(x, self.weight.T)
-#         if self.bias is not None:
-#             z += self.bias
-
-#         return z
-
-#     def backward(self, grad_z: cp.ndarray) -> cp.ndarray:
-#         """
-#         Backward pass for the linear layer.
-
-#         Args:
-#             grad_z (cp.ndarray): Gradient of the loss with respect to the output of the linear layer.
-
-#         Returns:
-#             cp.ndarray: Gradient of the loss with respect to the input of the linear layer.
-#         """
-
-#         # input = self.cache["input"]
-#         # if len(grad_z.shape) == 3:
-#         #     output_grad = cp.dot(grad_z, self.weight.T)
-#         #     self.grad_w = cp.sum(cp.matmul(input.transpose(0, 2, 1), grad_z), axis=0)
-#         #     if self.bias is not None:
-#         #         self.grad_b = cp.sum(grad_z, axis=(0, 1))
-#         #     return output_grad
-#         # else:
-#         #     output_grad = cp.dot(grad_z, self.weight.T)
-#         #     self.grad_w = cp.dot(input.T, grad_z)
-#         #     if self.bias is not None:
-#         #         self.grad_b = grad_z.sum(axis=0)
-#         #     return output_grad
-
-#         # Compute gradients
-#         self.grad_w = cp.dot(grad_z.T, self.cache["input"])
-#         self.grad_b = cp.sum(grad_z, axis=0)
-#         grad_x = cp.dot(grad_z, self.weight)
-
-#         return grad_x
-
-#     def __call__(self, x: cp.ndarray) -> cp.ndarray:
-#         return self.forward(x)
-
-#     def init_params(self, w: cp.ndarray, b: cp.ndarray) -> None:
-#         """
-#         Initialize weights and biases manually (for unit tests).
-
-#         Args:
-#             w (cp.ndarray): Weight matrix of shape [out_features, in_features].
-#             b (cp.ndarray): Bias vector of shape [out_features].
-
-#         Returns:
-#             None
-#         """
-#         if w.shape != (self.out_features, self.in_features):
-#             raise ValueError("Invalid shape for weight matrix.")
-#         if b.shape != (self.out_features,):
-#             raise ValueError("Invalid shape for bias vector.")
-
-#         self.weight = w
-#         self.bias = b
-
-#     def get_grads(self) -> Tuple[cp.ndarray, cp.ndarray]:
-#         """
-#         Get gradients of weights and biases.
-
-#         Returns:
-#             Tuple[cp.ndarray, cp.ndarray]: Gradients of weights and biases.
-#         """
-#         return self.grad_w, self.grad_b
-
-#     def get_weight(self) -> cp.ndarray:
-#         """
-#         Get weights.
-
-#         Returns:
-#             cp.ndarray: Weights.
-#         """
-#         return self.weight
-
-#     def get_bias(self) -> cp.ndarray:
-#         """
-#         Get biases.
-
-#         Returns:
-#             cp.ndarray: Biases.
-#         """
-#         return self.bias
