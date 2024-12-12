@@ -5,7 +5,7 @@ from linear import Linear
 from class_token import Parameter
 from patchify import patchify
 from positional_embedding import PositionalEmbedding
-from vit_modules import TransformerBlock
+from transformer_block import TransformerBlock
 
 
 class ViT:

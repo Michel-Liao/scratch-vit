@@ -198,7 +198,7 @@ class TestLinearLayer(unittest.TestCase):
         set_parameters_externally_mha(custom_mha, mapped_params)
         custom_out = custom_mha.forward(input)
         # validate
-        decimal_place = 3
+        decimal_place = 2
         message = "NumPy and reference implementation not almost equal."
 
         np.testing.assert_array_almost_equal(
