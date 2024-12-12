@@ -1,0 +1,39 @@
+===================================================
+Vision Transformer Grid Search
+Started at: Thu Dec 12 07:40:05 AM EST 2024
+===================================================
+
+Fixed Parameters:
+- Number of heads: 4
+- Number of blocks: 3
+- Hidden dimension: 384
+- Epochs: 5
+- Test interval: 1
+
+Grid Search Parameters:
+- Learning rates: 1e-6 1e-7 1e-8 1e-9
+- Patch sizes: 4 7 14
+
+===================================================
+
+Experiment 1/4*3 (lr=1e-6, patch_size=4)
+Success - Test Accuracy: 0.5162, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 2/4*3 (lr=1e-6, patch_size=7)
+Success - Test Accuracy: 0.6670, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 3/4*3 (lr=1e-6, patch_size=14)
+Failed - Error during execution
+---------------------------------------------------
+
+Experiment 4/4*3 (lr=1e-7, patch_size=4)
+Success - Test Accuracy: 0.1796, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 5/4*3 (lr=1e-7, patch_size=7)
+Success - Test Accuracy: 0.2732, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 6/4*3 (lr=1e-7, patch_size=14)

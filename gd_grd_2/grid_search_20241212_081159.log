@@ -1,0 +1,76 @@
+===================================================
+Vision Transformer Grid Search
+Started at: Thu Dec 12 08:11:59 AM EST 2024
+===================================================
+
+Fixed Parameters:
+- Number of heads: 4
+- Number of blocks: 3
+- Hidden dimension: 384
+- Epochs: 5
+- Test interval: 1
+
+Grid Search Parameters:
+- Learning rates: 1e-4 1e-5
+- Patch sizes: 1 2 4 7
+
+===================================================
+
+Experiment 1/2*4 (lr=1e-4, patch_size=1)
+Success - Test Accuracy: 0.9426, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 2/2*4 (lr=1e-4, patch_size=2)
+Success - Test Accuracy: 0.9350, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 3/2*4 (lr=1e-4, patch_size=4)
+Success - Test Accuracy: 0.8684, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 4/2*4 (lr=1e-4, patch_size=7)
+Success - Test Accuracy: 0.8470, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 5/2*4 (lr=1e-5, patch_size=1)
+Success - Test Accuracy: 0.9122, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 6/2*4 (lr=1e-5, patch_size=2)
+Success - Test Accuracy: 0.8796, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 7/2*4 (lr=1e-5, patch_size=4)
+Success - Test Accuracy: 0.7894, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 8/2*4 (lr=1e-5, patch_size=7)
+Success - Test Accuracy: 0.8216, Inference Time: NAms
+---------------------------------------------------
+
+===================================================
+Grid Search Results Summary
+===================================================
+Best Configuration:
+- Learning Rate: 1e-4
+- Patch Size: 1
+- Test Accuracy: 0.9426
+- Inference Time: NAms
+
+All Results (sorted by accuracy):
+---------------------------------------------------
+1e-4           1           0.9426         NA                 success
+1e-4           2           0.9350         NA                 success
+1e-5           1           0.9122         NA                 success
+1e-5           2           0.8796         NA                 success
+1e-4           4           0.8684         NA                 success
+1e-4           7           0.8470         NA                 success
+1e-5           7           0.8216         NA                 success
+1e-5           4           0.7894         NA                 success
+learning_rate  patch_size  test_accuracy  inference_time_ms  status
+
+===================================================
+Grid search completed at Thu Dec 12 08:37:39 AM EST 2024
+Logs saved in: vit_grid_search_results/experiment_logs_20241212_081159
+Results saved in: vit_grid_search_results/results_20241212_081159.csv
+===================================================

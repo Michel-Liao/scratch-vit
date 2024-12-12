@@ -1,0 +1,59 @@
+===================================================
+Vision Transformer Architecture Search
+Started at: Thu Dec 12 08:47:05 AM EST 2024
+===================================================
+
+Fixed Parameters:
+- Learning rate: 1e-4
+- Patch size: 4
+- Epochs: 5
+- Test interval: 1
+
+Search Parameters:
+- Number of heads: 2 4 8 12
+- Number of blocks: 2 4 6 8 12
+- Hidden dimensions: 256 384 512
+
+===================================================
+
+Experiment 1/4*5*3 (heads=2, blocks=2, hidden_dim=256)
+Success - Test Accuracy: 0.8370, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 2/4*5*3 (heads=2, blocks=2, hidden_dim=384)
+Success - Test Accuracy: 0.8110, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 3/4*5*3 (heads=2, blocks=2, hidden_dim=512)
+Success - Test Accuracy: 0.8466, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 4/4*5*3 (heads=2, blocks=4, hidden_dim=256)
+Success - Test Accuracy: 0.8554, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 5/4*5*3 (heads=2, blocks=4, hidden_dim=384)
+Success - Test Accuracy: 0.8538, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 6/4*5*3 (heads=2, blocks=4, hidden_dim=512)
+Success - Test Accuracy: 0.8614, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 7/4*5*3 (heads=2, blocks=6, hidden_dim=256)
+Success - Test Accuracy: 0.8528, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 8/4*5*3 (heads=2, blocks=6, hidden_dim=384)
+Success - Test Accuracy: 0.8556, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 9/4*5*3 (heads=2, blocks=6, hidden_dim=512)
+Success - Test Accuracy: 0.8548, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 10/4*5*3 (heads=2, blocks=8, hidden_dim=256)
+Success - Test Accuracy: 0.8558, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 11/4*5*3 (heads=2, blocks=8, hidden_dim=384)
