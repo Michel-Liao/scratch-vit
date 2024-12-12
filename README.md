@@ -79,6 +79,7 @@ To run the unit tests:
 * how to parallelize
 * not calculating softmax before classification
 * didn't one-hot encode the mnist crap
+* running times weren't consistent with the same configuration
 
 ## Ideas
 * Compare our ViT attention maps/visualize with official implementation

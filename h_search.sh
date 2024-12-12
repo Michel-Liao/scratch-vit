@@ -49,9 +49,9 @@ EPOCHS=5
 TEST_INTERVAL=1
 
 # Architecture parameters to test
-num_heads=(2 4 8 12)
-num_blocks=(2 4 6 8 12)
-hidden_dims=(256 384 512)
+num_heads=(4 8 12)
+num_blocks=(4 8 12)
+hidden_dims=(256 512 768)
 
 # Log start time and parameters
 {
@@ -85,9 +85,9 @@ best_inference_time=""
 total_experiments=${#num_heads[@]}*${#num_blocks[@]}*${#hidden_dims[@]}
 current_experiment=0
 
-for heads in "${num_heads[@]}"; do
-    for blocks in "${num_blocks[@]}"; do
-        for hidden_dim in "${hidden_dims[@]}"; do
+for hidden_dim in "${hidden_dims[@]}"; do
+    for heads in "${num_heads[@]}"; do
+        for blocks in "${num_blocks[@]}"; do
             current_experiment=$((current_experiment + 1))
             echo -e "\nExperiment $current_experiment/$total_experiments (heads=$heads, blocks=$blocks, hidden_dim=$hidden_dim)" | tee -a "$MAIN_LOG"
             
@@ -176,56 +176,3 @@ done
     echo "Results saved in: $RESULTS_CSV"
     echo "==================================================="
 } | tee -a "$MAIN_LOG"
-
-# Create visualization
-cat << EOF > plot_results.py
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-# Read results
-df = pd.read_csv("$RESULTS_CSV")
-
-# Create figure with subplots for different visualizations
-plt.figure(figsize=(15, 10))
-
-# 1. Accuracy vs Architecture Parameters
-plt.subplot(2, 2, 1)
-sns.scatterplot(data=df, x='hidden_dim', y='test_accuracy', 
-                hue='num_blocks', size='num_heads',
-                sizes=(50, 200), alpha=0.7)
-plt.title('Accuracy vs Architecture Parameters')
-plt.legend(title='Num Blocks', bbox_to_anchor=(1.05, 1))
-
-# 2. Inference Time vs Architecture Parameters
-plt.subplot(2, 2, 2)
-sns.scatterplot(data=df, x='hidden_dim', y='inference_time_ms', 
-                hue='num_blocks', size='num_heads',
-                sizes=(50, 200), alpha=0.7)
-plt.title('Inference Time vs Architecture Parameters')
-plt.legend(title='Num Blocks', bbox_to_anchor=(1.05, 1))
-
-# 3. Heatmap of average accuracy for num_blocks vs num_heads
-plt.subplot(2, 2, 3)
-pivot_acc = df.pivot_table(values='test_accuracy', 
-                          index='num_blocks', 
-                          columns='num_heads', 
-                          aggfunc='mean')
-sns.heatmap(pivot_acc, annot=True, fmt='.3f', cmap='viridis')
-plt.title('Average Accuracy: Blocks vs Heads')
-
-# 4. Heatmap of average inference time for num_blocks vs hidden_dim
-plt.subplot(2, 2, 4)
-pivot_time = df.pivot_table(values='inference_time_ms', 
-                           index='num_blocks', 
-                           columns='hidden_dim', 
-                           aggfunc='mean')
-sns.heatmap(pivot_time, annot=True, fmt='.1f', cmap='rocket_r')
-plt.title('Average Inference Time: Blocks vs Hidden Dim')
-
-plt.tight_layout()
-plt.savefig("$RESULTS_DIR/architecture_search_results.png", bbox_inches='tight')
-EOF
-
-python plot_results.py

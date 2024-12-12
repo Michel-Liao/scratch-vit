@@ -1,0 +1,11 @@
+num_heads,num_blocks,hidden_dim,test_accuracy,inference_time_ms,status
+2,2,256,0.8370,NA,success
+2,2,384,0.8110,NA,success
+2,2,512,0.8466,NA,success
+2,4,256,0.8554,NA,success
+2,4,384,0.8538,NA,success
+2,4,512,0.8614,NA,success
+2,6,256,0.8528,NA,success
+2,6,384,0.8556,NA,success
+2,6,512,0.8548,NA,success
+2,8,256,0.8558,NA,success
