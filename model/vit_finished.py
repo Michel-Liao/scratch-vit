@@ -1,5 +1,9 @@
+import sys
+import os
 import cupy as cp
 from typing import Tuple
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from linear import Linear
 from class_token import Parameter
