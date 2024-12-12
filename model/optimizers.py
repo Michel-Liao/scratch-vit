@@ -12,7 +12,7 @@ class Optimizer(ABC):
 
         Args:
         grad (cp.ndarray): Gradient of the loss with respect to the weights.
-        w (cp.ndarray): Weights.
+        w (cp.ndarray): Weights to be updated.
 
         Returns:
         None
