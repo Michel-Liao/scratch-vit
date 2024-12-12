@@ -142,7 +142,8 @@ def set_parameters_externally_mha(
         # Convert NumPy arrays to CuPy arrays
         weight = cp.asarray(mapped_weights[namew].detach().numpy().T)
         bias = cp.asarray(mapped_weights[nameb].detach().numpy())
-        q.init_params(weight, bias)
+        # q.init_params(weight, bias)
+        q.set_parameters_externally(weight, bias)
         count += 1
     count = 0
     for k in mha_object.k_mappings:
@@ -151,7 +152,8 @@ def set_parameters_externally_mha(
         # Convert NumPy arrays to CuPy arrays
         weight = cp.asarray(mapped_weights[namew].detach().numpy().T)
         bias = cp.asarray(mapped_weights[nameb].detach().numpy())
-        k.init_params(weight, bias)
+        # k.init_params(weight, bias)
+        k.set_parameters_externally(weight, bias)
         count += 1
     count = 0
     for v in mha_object.v_mappings:
@@ -160,7 +162,8 @@ def set_parameters_externally_mha(
         # Convert NumPy arrays to CuPy arrays
         weight = cp.asarray(mapped_weights[namew].detach().numpy().T)
         bias = cp.asarray(mapped_weights[nameb].detach().numpy())
-        v.init_params(weight, bias)
+        # v.init_params(weight, bias)
+        v.set_parameters_externally(weight, bias)
         count += 1
 
 
