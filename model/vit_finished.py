@@ -25,6 +25,7 @@ class ViT:
         h_dim: int,
         n_heads: int,
         num_blocks: int,
+        init_method: str,
         classes: int,
     ):
         """Initialize.
@@ -44,7 +45,7 @@ class ViT:
         self.input_d = int(im_dim[0] * self.patch_size[0] ** 2)
         self.h_dim = h_dim
 
-        self.linear_proj = Linear(self.input_d, self.h_dim, bias=False)
+        self.linear_proj = Linear(self.input_d, self.h_dim, init_method, bias=False)
         self.class_token = Parameter(cp.random.rand(1, self.h_dim))
 
         # TODO: FIGURE THIS OUT

@@ -14,11 +14,14 @@ from model.optimizers import Optimizer, Adam
 class Linear:
     """Linear layer."""
 
-    def __init__(self, in_size: int, out_size: int, bias: bool = True) -> None:
+    def __init__(
+        self, in_size: int, out_size: int, init_method: str = "he", bias: bool = True
+    ) -> None:
         """
         Args:
             in_size (int): The number of input features.
             out_size (int): The number of output features.
+            init_method (str): Initialization method for the weights.
             bias (bool): Boolean determining whether the layer will learn an additive bias.
         """
 
@@ -33,13 +36,13 @@ class Linear:
 
         self.cache = {"input": None}
 
-        self._init_params()
+        self._init_params(init_method)
         self.init_optimizer(Adam())
 
     def __call__(self, x: cp.ndarray) -> cp.ndarray:
         return self.forward(x)
 
-    def _init_params(self, method: str = "he") -> None:
+    def _init_params(self, method) -> None:
         """
         Initialize the layer weights and biases.
 
