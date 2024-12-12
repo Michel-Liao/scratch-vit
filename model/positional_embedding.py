@@ -80,7 +80,7 @@ class PositionalEmbedding:
 
         self.cache["input"] = x
 
-        # Broadcasting will handle batch dimension
+        # Broadcasting handles batch dimension
         out = x + self.pos_embedding
 
         return out
@@ -128,3 +128,6 @@ class PositionalEmbedding:
             cp.ndarray: Gradients of positional embeddings
         """
         return self.grad_pos_embedding
+
+    def __call__(self, x: cp.ndarray) -> cp.ndarray:
+        return self.forward(x)

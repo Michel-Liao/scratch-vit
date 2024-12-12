@@ -6,6 +6,7 @@ from class_token import Parameter
 from patchify import patchify
 from positional_embedding import PositionalEmbedding
 from transformer_block import TransformerBlock
+from optimizers import Optimizer, Adam
 
 
 class ViT:
@@ -42,14 +43,35 @@ class ViT:
         self.linear_proj = Linear(self.input_d, self.h_dim, bias=False)
         self.class_token = Parameter(cp.random.rand(1, self.h_dim))
 
-        self.pos_embed = patchify(self.n_patches**2 + 1, self.h_dim)
+        # TODO: FIGURE THIS OUT
+        self.pos_embed = PositionalEmbedding(n_patches, h_dim)
 
         self.blocks = [TransformerBlock(h_dim, n_heads) for _ in range(num_blocks)]
 
         # MLP head for classification
         self.mlp = Linear(self.h_dim, classes)
 
-    def forward(self, images: np.ndarray) -> np.ndarray:
+    # def forward(self, images: cp.ndarray) -> cp.ndarray:
+    #     """Forward propagation.
+
+    #     Args:
+    #         images: input array.
+
+    #     Returns:
+    #         computed linear layer output.
+    #     """
+    #     patches = patchify(images, self.n_patches)
+    #     tokens = self.linear_proj(patches)
+    #     out = cp.stack(
+    #         [cp.vstack((self.class_token.val, tokens[i])) for i in range(len(tokens))]
+    #     )
+    #     out = out + self.pos_embed
+    #     for block in self.blocks:
+    #         out = block.forward(out)
+    #     out = self.mlp(out[:, 0])
+    #     return out
+
+    def forward(self, images: cp.ndarray) -> cp.ndarray:
         """Forward propagation.
 
         Args:
@@ -58,30 +80,33 @@ class ViT:
         Returns:
             computed linear layer output.
         """
-        patches = convert_image_to_patches(images, self.n_patches)
+        patches = patchify(images, self.n_patches)
         tokens = self.linear_proj(patches)
-        out = np.stack(
-            [np.vstack((self.class_token.val, tokens[i])) for i in range(len(tokens))]
+        out = cp.stack(
+            [cp.vstack((self.class_token.val, tokens[i])) for i in range(len(tokens))]
         )
-        out = out + self.pos_embed
+        out = self.pos_embed(out)
+
         for block in self.blocks:
             out = block.forward(out)
+        # Class token
         out = self.mlp(out[:, 0])
+
         return out
 
-    def set_optimizer(self, optimizer_algo: object) -> None:
+    def init_optimizer(self, optimizer: Optimizer) -> None:
         """Set optimizer.
 
         Args:
             optimizer: optimizer.
         """
-        self.linear_proj.set_optimizer(optimizer_algo)
+        self.linear_proj.init_optimizer(optimizer)
         for block in self.blocks:
-            block.set_optimizer(optimizer_algo)
-        self.mlp.set_optimizer(optimizer_algo)
-        self.class_token.set_optimizer(optimizer_algo)
+            block.init_optimizer(optimizer)
+        self.mlp.init_optimizer(optimizer)
+        self.class_token.init_optimizer(optimizer)
 
-    def backward(self, error: np.ndarray) -> np.ndarray:
+    def backward(self, error: cp.ndarray) -> cp.ndarray:
         """Backward propagation.
 
         Args:
@@ -94,14 +119,19 @@ class ViT:
 
         for block in self.blocks[::-1]:
             error = block.backward(error)
-        removed_cls = error[:, 1:, :]
-        _ = self.linear_proj.backward(removed_cls)
+
         self.class_token.backward(error[:, 0, :])
 
-    def update_weights(self) -> None:
+        removed_cls = error[:, 1:, :]
+
+        _ = self.linear_proj.backward(removed_cls)
+
+        self.class_token.backward(error[:, 0, :])
+
+    def update_params(self) -> None:
         """Update weights based on the calculated gradients."""
-        self.mlp.update_weights()
+        self.mlp.update_params()
         for block in self.blocks[::-1]:
-            block.update_weights()
-        self.linear_proj.update_weights()
-        self.class_token.update_weights()
+            block.update_params()
+        self.linear_proj.update_params()
+        self.class_token.update_params()

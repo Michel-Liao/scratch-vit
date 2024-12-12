@@ -25,7 +25,7 @@ class Parameter:
         """
         self.optimizer = copy.deepcopy(optimizer)
 
-    def update_weights(self) -> None:
+    def update_params(self) -> None:
         self.val = self.optimizer.update(self.cache["grad"], self.val)
 
     def backward(self, grad: cp.ndarray) -> None:
