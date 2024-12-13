@@ -56,26 +56,6 @@ class ViT:
         # MLP head for classification
         self.mlp = Linear(self.h_dim, classes)
 
-    # def forward(self, images: cp.ndarray) -> cp.ndarray:
-    #     """Forward propagation.
-
-    #     Args:
-    #         images: input array.
-
-    #     Returns:
-    #         computed linear layer output.
-    #     """
-    #     patches = patchify(images, self.n_patches)
-    #     tokens = self.linear_proj(patches)
-    #     out = cp.stack(
-    #         [cp.vstack((self.class_token.val, tokens[i])) for i in range(len(tokens))]
-    #     )
-    #     out = out + self.pos_embed
-    #     for block in self.blocks:
-    #         out = block.forward(out)
-    #     out = self.mlp(out[:, 0])
-    #     return out
-
     def forward(self, images: cp.ndarray) -> cp.ndarray:
         """Forward propagation.
 
