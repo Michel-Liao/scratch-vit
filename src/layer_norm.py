@@ -1,14 +1,13 @@
-from src.optimizers import Optimizer, Adam
-import copy
-import cupyx
-import cupy as cp
-from abc import ABC, abstractmethod
-from typing import Tuple
-import sys
 import os
+import sys
+import copy
+from typing import Tuple
+
+import cupy as cp
+import cupyx
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
+from src.optimizers import Optimizer, Adam
 
 class LayerNorm:
     """
@@ -16,14 +15,12 @@ class LayerNorm:
     """
 
     def __init__(self, normalized_shape, eps=1e-5) -> None:
-        """Initialize instance variables.
+        """
+        Initialize instance variables.
 
         Args:
             normalized_shape (int): Shape to normalize over.
             eps (float): Epsilon. Default is 1e-5.
-
-        Returns:
-            None
         """
         self.normalized_shape = normalized_shape
         self.eps = eps
@@ -33,15 +30,15 @@ class LayerNorm:
 
         self.init_optimizer(optimizer=Adam())
 
+    def __call__(self, x: cp.ndarray) -> cp.ndarray:
+        return self.forward(x)
+
     def init_optimizer(self, optimizer: Optimizer) -> None:
         """
         Initialize optimizers for weight and bias.
 
         Args:
             optimizer (Optimizer): Optimizer object.
-
-        Returns:
-            None
         """
         self.optimizer_w = copy.deepcopy(optimizer)
         self.optimizer_b = copy.deepcopy(optimizer)
@@ -127,15 +124,9 @@ class LayerNorm:
 
         return dx1 + dx2 + dx3
 
-    def __call__(self, x: cp.ndarray) -> cp.ndarray:
-        return self.forward(x)
-
     def update_params(self) -> None:
         """
         Update weight and bias.
-
-        Returns:
-            None
         """
         self.weight = self.optimizer_w.update(self.grad_w, self.weight)
         if self.bias is not None:
