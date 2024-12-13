@@ -1,11 +1,14 @@
 # Vision Transformer from Scratch
 
+![CuPy Badge](https://img.shields.io/badge/CuPy-005BAC?logo=numpy&logoColor=fff&style=flat)
+![Unittest Badge](https://img.shields.io/badge/Unittest-239120?logo=python&logoColor=fff&style=flat)
+
 This repository contains a from-scratch re-implementation of the Vision Transformer,
 first introduced by Dosovitskiy et. al. in 2020. The source code is written using
 CuPy, a CUDA-enabled sister library to NumPy. All modules and processes of the 
 Vision Transformer are re-implemented faithful to their description in the paper, 
 not to any other versions. More information on all modules and processes can be
-found in the `src` folder.
+found in the [`src` folder](./src/).
 
 To verify the implementation of our model, we run unit tests against each
 component that we implemented. Thus, every file/component in the `src` folder
@@ -38,7 +41,7 @@ SCRATCH_VIT/
 - Run `conda env create -f environment.yml` to install the correct environment.
 - Run `python -m ipykernel install --user --name=scratch_vit` to install the environment in your Jupyter notebook.
 
-## Download and Preprocess the Data
+### Download and Preprocess the Data
 
 This repoistory has been initially designed to work with the MNIST and CIFAR10
 datasets. To begin, run the following command from the root directory.
@@ -54,14 +57,30 @@ and test. Each .npy file should contain two numpy arrays, the input in shape
 `(num_samples, channels, img_height, img_width)` and the labels in shape 
 `(num_samples, label_id)`. The label ids should be one-hot encoded.
 
-## Training the model
+### Training the model
 
+The Vision Transformer can be trained using the `trainer.py` script. The script accepts various command-line arguments to customize the training process:
 
+#### Data Parameters
+- `--data_path`: (Required) Path to the preprocessed dataset files. The script expects three files with suffixes "_train", "_val", and "_test"
+- `--batch_size`: Number of samples per training batch (default: 16)
+- `--epochs`: Total number of training epochs (default: 5)
+- `--eval_interval`: Number of epochs between validation evaluations (default: 2)
 
-## **FIX THE DAMN SOFTMAX**
+#### Model Architecture
+- `--hidden_dim`: Dimensionality of the transformer's hidden layers (default: 128)
+- `--num_heads`: Number of attention heads in multi-head attention (default: 4)
+- `--num_blocks`: Number of transformer encoder blocks (default: 4)
+- `--patch_size`: Size of image patches (default: 7)
 
+#### Optimization Parameters
+- `--learning_rate`: Learning rate for the Adam optimizer (default: 1e-9)
+- `--init_method`: Weight initialization method, choices: ["he", "normal", "uniform", "xavier"] (default: "he")
 
-## Run
+#### Example Usage
+```
+python trainer.py --data_path ./data --batch_size 32 --epochs 10 --eval_interval 1 --hidden_dim 256 --num_heads 8 --num_blocks 6 --patch_size 16 --learning_rate 1e-4 --init_method xavier
+```
 
 ### Unit Tests
 
@@ -69,31 +88,6 @@ To run the unit tests:
 
 1. `cd unit_tests`
 2. `python -m unittest [scriptname].py`
-
-## TODO
-
-- [x] Patchification
-- [x] Position Embedding
-- [x] Linear
-- [x] MHA
-- [x] Layer Norm
-- [x] ReLU
-- [x] GELU
-- [x] Optimizer
-- [x] Cross-entropy loss
-- [x] Softmax
-
-## Resources
-
-- [ViT NumPy Implementation](https://github.com/kmsgnnew/vision_transformer_numpy/tree/main)
-- [Transformer NumPy Implementation](https://github.com/AkiRusProd/numpy-transformer/tree/master)
-- [CuPy (NumPy for GPU)](https://cupy.dev/)
-- [Numba (fast Python compiler)](https://numba.pydata.org/)
-- [Softmax + Cross-entropy Loss](https://levelup.gitconnected.com/killer-combo-softmax-and-cross-entropy-5907442f60ba)
-- [Numerically stable softmax + CELoss](https://jaykmody.com/blog/stable-softmax/)
-- [Calculating GELU](https://www.youtube.com/watch?v=FWhMkpo9yuM)
-- [LayerNorm backprop](https://robotchinwag.com/posts/layer-normalization-deriving-the-gradient-for-the-backward-pass/)
-- [ViT Notebook Explainer](https://github.com/nerminnuraydogan/vision-transformer/blob/main/vision-transformer.ipynb)
 
 ## Citations
 
@@ -106,7 +100,7 @@ To run the unit tests:
 - RELU Paper
 - Layer Norm Paper
 
-## Observations
+## Notes
 
 - When doing patchify, issue of what happens if the image dimension doesn't work well with the patch dimension? The ViT paper doesn't explain this case but the Appendix B.1 shows they use resolution 224 x 224 which is divisible by their patch sizes of 16 and 32. We will do the same.
 - Implementing things in the order of the paper's method section isn't possible. Often, earlier steps mentioned, like learned positional embedding, require something later on, in this case an MLP.
@@ -126,13 +120,5 @@ To run the unit tests:
 - cp.newaxis issues
 - optimizing z = x @ W.T + b
 - stacking CLS token/how to process
-- figuring out MHA
-- how to parallelize
 - not calculating softmax before classification
-- didn't one-hot encode the mnist crap
 - running times weren't consistent with the same configuration
-
-## Ideas
-
-- Compare our ViT attention maps/visualize with official implementation
-- Ablations
