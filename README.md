@@ -1,18 +1,35 @@
-# scratch_vit
+# Vision Transformer from Scratch
 
-## Download and Preprocess the Data
+This repository contains a from-scratch re-implementation of the Vision Transformer,
+first introduced by Dosovitskiy et. al. in 2020. The source code is written using
+CuPy, a CUDA-enabled sister library to NumPy. All modules and processes of the 
+Vision Transformer are re-implemented faithful to their description in the paper, 
+not to any other versions. More information on all modules and processes can be
+found in the `src` folder.
+
+To verify the implementation of our model, we run unit tests against each
+component that we implemented. Thus, every file/component in the `src` folder
+has a corresponding unit test file in the `tests` folder that compares the outputs
+of our from-scratch implementation against PyTorch's implementation. All components
+were verified up to a precision of three decimal places.
+
+## Getting Started
+
+This repository is organized by the following:
 
 ```
-python ./preprocess.py
+SCRATCH_VIT/
+├── data/           (Where datasets are to be stored)
+├── runs/           (Where run outputs and logs are stored)
+├── scripts/        (Bash scripts to automate processes such as hyperparameter tuning)
+├── src/            (Source code for our from-scratch implementation)
+├── tests/          (Unit test files to verify against PyTorch)
+├── visualize/      (Files useful to visualize graphs, images, etc.)
+├── preprocess.py   (Python script to prepare data)
+├── trainer.py      (Python script that houses the ViT trainer class)
+└── environment.yml (Library environment file)
+└── ...
 ```
-
-## **FIX THE DAMN SOFTMAX**
-
-## Install
-
-### MNIST Download
-
-To download the MNIST data, use [torchvision's MNIST class.](https://pytorch.org/vision/main/generated/torchvision.datasets.MNIST.html)
 
 ### Environment Setup
 
@@ -20,6 +37,29 @@ To download the MNIST data, use [torchvision's MNIST class.](https://pytorch.org
 
 - Run `conda env create -f environment.yml` to install the correct environment.
 - Run `python -m ipykernel install --user --name=scratch_vit` to install the environment in your Jupyter notebook.
+
+## Download and Preprocess the Data
+
+This repoistory has been initially designed to work with the MNIST and CIFAR10
+datasets. To begin, run the following command from the root directory.
+
+```
+python ./preprocess.py
+```
+
+It's possible to add additional datasets. Reference the `preprocess.py` to 
+better understand what are the preprocessing steps required. In short, it's
+required that the dataset be cut into three .npy files, one for train, validation,
+and test. Each .npy file should contain two numpy arrays, the input in shape
+`(num_samples, channels, img_height, img_width)` and the labels in shape 
+`(num_samples, label_id)`. The label ids should be one-hot encoded.
+
+## Training the model
+
+
+
+## **FIX THE DAMN SOFTMAX**
+
 
 ## Run
 
