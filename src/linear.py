@@ -1,18 +1,18 @@
 import sys
 import os
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from typing import Tuple
-from abc import ABC, abstractmethod
 import cupy as cp
 import copy
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.optimizers import Optimizer, Adam
 
 
 class Linear:
-    """Linear layer."""
+    """
+    Linear layer.
+    """
 
     def __init__(
         self, in_size: int, out_size: int, init_method: str = "he", bias: bool = True
@@ -49,9 +49,6 @@ class Linear:
         Args:
             method (str): Initialization method. Options include "he", "xavier",
                           "normal", "uniform".
-
-        Returns:
-            None
         """
 
         if method == "he":
@@ -144,9 +141,6 @@ class Linear:
         Args:
             w (cp.ndarray): Weight matrix of shape [out_features, in_features].
             b (cp.ndarray): Bias vector of shape [out_features].
-
-        Returns:
-            None
         """
         if w.shape != (self.out_size, self.in_size):
             raise ValueError("Invalid shape for weight matrix.")
