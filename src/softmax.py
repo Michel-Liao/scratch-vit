@@ -7,7 +7,6 @@ from typing import Tuple
 from abc import ABC, abstractmethod
 import cupy as cp
 
-
 class Softmax:
     """Computes softmax."""
 

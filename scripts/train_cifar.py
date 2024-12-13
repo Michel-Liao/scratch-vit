@@ -7,7 +7,7 @@ import cupy as cp
 import tqdm
 from src.loss import CategoricalCrossEntropyLoss
 from src.optimizers import Adam
-from src.vit_finished import ViT
+from src.ViT import ViT
 from src.softmax import Softmax
 
 
