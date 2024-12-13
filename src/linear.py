@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 import cupy as cp
 import copy
 
-from model.optimizers import Optimizer, Adam
+from src.optimizers import Optimizer, Adam
 
 
 class Linear:

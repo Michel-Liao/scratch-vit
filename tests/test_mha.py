@@ -14,7 +14,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import unittest
 from typing import Dict, Tuple
 
-from model.multi_head_attention import (
+from src.multi_head_attention import (
     MultiHeadAttention,
 )
 

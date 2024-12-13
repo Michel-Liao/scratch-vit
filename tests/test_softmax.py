@@ -9,7 +9,7 @@ import cupy as cp
 import torch
 from typing import Tuple
 
-from model.softmax import Softmax
+from src.softmax import Softmax
 
 
 class TestSoftmax(unittest.TestCase):

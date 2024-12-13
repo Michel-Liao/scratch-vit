@@ -9,7 +9,7 @@ import torch.nn as nn
 import numpy as np
 import cupy as cp
 
-from model.optimizers import Adam
+from src.optimizers import Adam
 
 
 class TestAdamOptimizer(unittest.TestCase):

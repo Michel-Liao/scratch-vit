@@ -1,22 +1,21 @@
 import argparse
 import os
 from typing import Tuple
-import pickle
 
 import cupy as cp
 import tqdm
-from model.loss import CategoricalCrossEntropyLoss
-from model.optimizers import Adam
-from model.vit_finished import ViT
-from model.softmax import Softmax
+from src.loss import CategoricalCrossEntropyLoss
+from src.optimizers import Adam
+from src.vit_finished import ViT
+from src.softmax import Softmax
 
 
 class VisionTransformer:
-    """Vision Transformer (ViT) training wrapper for CIFAR-10."""
+    """Vision Transformer (ViT) training wrapper for MNIST."""
 
     def __init__(
         self,
-        path_to_cifar: str,
+        path_to_mnist: str,
         batch_size: int,
         epochs: int,
         test_epoch_interval: int,
@@ -30,7 +29,7 @@ class VisionTransformer:
         """Initialize Vision Transformer trainer.
 
         Args:
-            path_to_cifar: Path to folder containing CIFAR-10 dataset files
+            path_to_mnist: Path to folder containing MNIST dataset files
             batch_size: Number of samples per training batch
             epochs: Number of training epochs
             test_epoch_interval: Interval for running test evaluation
@@ -39,9 +38,9 @@ class VisionTransformer:
             num_blocks: Number of transformer blocks
             learning_rate: Learning rate for optimizer
             patch_size: Size of image patches (assumes square patches)
-            init_method: Type of linear layer initialization ('he', 'normal', 'uniform', 'xavier')
+            linear_init: Type of linear layer initialization ('normal', 'uniform', 'xavier')
         """
-        self.path_to_cifar = path_to_cifar
+        self.path_to_mnist = path_to_mnist
         self.batch_size = batch_size
         self.epochs = epochs
         self.test_epoch_interval = test_epoch_interval
@@ -55,80 +54,40 @@ class VisionTransformer:
         self.load_dataset()
 
     def load_dataset(self) -> None:
-        """Load and prepare CIFAR-10 dataset."""
-        self.x_train, self.y_train = self._load_and_process_training_data()
-        self.x_test, self.y_test = self._load_and_process_test_data()
+        """Load and prepare MNIST dataset."""
+        self.x_train, self.y_train = self._load_and_process_data("mnist_train.npy")
+        self.x_test, self.y_test = self._load_and_process_data("mnist_test.npy")
 
-    def _unpickle(self, file):
-        """Helper function to unpickle CIFAR-10 data files."""
-        with open(file, "rb") as fo:
-            dict = pickle.load(fo, encoding="bytes")
-        return dict
+    def _load_and_process_data(self, filename: str) -> Tuple[cp.ndarray, cp.ndarray]:
+        """Load and process MNIST data file.
 
-    def _load_and_process_training_data(self) -> Tuple[cp.ndarray, cp.ndarray]:
-        """Load and process CIFAR-10 training data.
+        Args:
+            filename: Name of the MNIST data file
 
         Returns:
             Tuple containing processed features and one-hot encoded labels
         """
-        x_train = []
-        y_train = []
+        with open(os.path.join(self.path_to_mnist, filename), "rb") as f:
+            x_data = cp.load(f)
+            # Cut x_data in half
+            x_data = x_data[:, : x_data.shape[1] // 2]
+            y_data = cp.load(f).astype(cp.int32)
+            y_data = y_data[: y_data.size // 2]
 
-        # CIFAR-10 training data is split into 5 batches
-        for i in range(1, 6):
-            filename = os.path.join(self.path_to_cifar, f"data_batch_{i}")
-            batch_dict = self._unpickle(filename)
-
-            # Extract data and labels
-            x_batch = batch_dict[b"data"]
-            y_batch = batch_dict[b"labels"]
-
-            x_train.append(x_batch)
-            y_train.extend(y_batch)
-
-        # Concatenate all training batches
-        x_train = cp.asarray(cp.vstack(x_train), dtype=cp.float32)
-        y_train = cp.asarray(y_train, dtype=cp.int32)
-
-        # Reshape and normalize images
-        x_train = x_train.reshape(-1, 3, 32, 32)
-        x_train = x_train / 255.0  # Normalize to [0, 1]
+        num_samples = int(y_data.size)
+        num_classes = int(y_data.max()) + 1
 
         # One-hot encode labels
-        num_samples = len(y_train)
-        y_onehot = cp.zeros((num_samples, 10), dtype=cp.float32)
-        y_onehot[cp.arange(num_samples), y_train] = 1
+        y_onehot = cp.zeros((num_samples, num_classes), dtype=cp.float32)
+        y_onehot[cp.arange(num_samples), y_data] = 1
 
-        return x_train, y_onehot
-
-    def _load_and_process_test_data(self) -> Tuple[cp.ndarray, cp.ndarray]:
-        """Load and process CIFAR-10 test data.
-
-        Returns:
-            Tuple containing processed features and one-hot encoded labels
-        """
-        test_file = os.path.join(self.path_to_cifar, "test_batch")
-        test_dict = self._unpickle(test_file)
-
-        x_test = cp.asarray(test_dict[b"data"], dtype=cp.float32)
-        y_test = cp.asarray(test_dict[b"labels"], dtype=cp.int32)
-
-        # Reshape and normalize images
-        x_test = x_test.reshape(-1, 3, 32, 32)
-        x_test = x_test / 255.0  # Normalize to [0, 1]
-
-        # One-hot encode labels
-        num_samples = len(y_test)
-        y_onehot = cp.zeros((num_samples, 10), dtype=cp.float32)
-        y_onehot[cp.arange(num_samples), y_test] = 1
-
-        return x_test, y_onehot
+        return x_data, y_onehot
 
     def datafeeder(self, x: cp.ndarray, y: cp.ndarray, shuffle: bool = False):
         """Generate batches of data.
 
         Args:
-            x: Input images (N, C, H, W)
+            x: Input images (C, N, H, W)
             y: Labels (N, L)
             shuffle: Whether to shuffle data
 
@@ -140,12 +99,18 @@ class VisionTransformer:
         if shuffle:
             randomize = cp.arange(n_samples)
             cp.random.shuffle(randomize)
-            x = x[randomize]
+            x = x[:, randomize]
             y = y[randomize]
 
         for i in range(0, n_samples, self.batch_size):
             batch_end = min(i + self.batch_size, n_samples)
-            yield x[i:batch_end], y[i:batch_end]
+            batch_size = batch_end - i
+
+            x_batch = x[:, i:batch_end].transpose(1, 0)
+            x_batch = x_batch.reshape(batch_size, 1, 28, 28)
+            y_batch = y[i:batch_end]
+
+            yield x_batch, y_batch
 
     def train_iter(self) -> float:
         """Run one training epoch.
@@ -200,14 +165,14 @@ class VisionTransformer:
 
     def train_model(self) -> None:
         """Train the Vision Transformer model."""
-        # Initialize model with CIFAR-10 dimensions
+        # Initialize model
         self.model = ViT(
-            im_dim=(3, 32, 32),  # CIFAR-10 images are 32x32x3
+            im_dim=(1, 28, 28),
             n_patches=self.patch_size,
             h_dim=self.hidden_dim,
             n_heads=self.num_heads,
             num_blocks=self.num_blocks,
-            classes=10,  # CIFAR-10 has 10 classes
+            classes=10,
             init_method=self.init_method,
         )
 
@@ -232,39 +197,39 @@ def parse_args() -> argparse.Namespace:
     Returns:
         Parsed command line arguments
     """
-    parser = argparse.ArgumentParser(description="Train Vision Transformer on CIFAR-10")
+    parser = argparse.ArgumentParser(description="Train Vision Transformer on MNIST")
 
     # Data and training parameters
     parser.add_argument(
-        "--path_to_cifar", required=True, help="Path to CIFAR-10 dataset folder"
+        "--path_to_mnist", required=True, help="Path to MNIST dataset folder"
     )
     parser.add_argument(
-        "--batch_size", type=int, default=32, help="Training batch size"
+        "--batch_size", type=int, default=16, help="Training batch size"
     )
     parser.add_argument(
-        "--epochs", type=int, default=10, help="Number of training epochs"
+        "--epochs", type=int, default=5, help="Number of training epochs"
     )
     parser.add_argument(
-        "--test_epoch_interval", type=int, default=1, help="Test evaluation interval"
+        "--test_epoch_interval", type=int, default=2, help="Test evaluation interval"
     )
 
     # Model architecture parameters
     parser.add_argument(
-        "--hidden_dim", type=int, default=256, help="Hidden dimension size"
+        "--hidden_dim", type=int, default=128, help="Hidden dimension size"
     )
     parser.add_argument(
-        "--num_heads", type=int, default=8, help="Number of attention heads"
+        "--num_heads", type=int, default=4, help="Number of attention heads"
     )
     parser.add_argument(
-        "--num_blocks", type=int, default=6, help="Number of transformer blocks"
+        "--num_blocks", type=int, default=4, help="Number of transformer blocks"
     )
     parser.add_argument(
-        "--patch_size", type=int, default=8, help="Size of image patches"
+        "--patch_size", type=int, default=7, help="Size of image patches"
     )
 
     # Optimization parameters
     parser.add_argument(
-        "--learning_rate", type=float, default=1e-4, help="Learning rate"
+        "--learning_rate", type=float, default=1e-9, help="Learning rate"
     )
     parser.add_argument(
         "--init_method",
@@ -279,8 +244,8 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    vit_cifar = VisionTransformer(
-        path_to_cifar=args.path_to_cifar,
+    vit_mnist = VisionTransformer(
+        path_to_mnist=args.path_to_mnist,
         batch_size=args.batch_size,
         epochs=args.epochs,
         test_epoch_interval=args.test_epoch_interval,
@@ -292,4 +257,4 @@ if __name__ == "__main__":
         init_method=args.init_method,
     )
 
-    vit_cifar.train_model()
+    vit_mnist.train_model()

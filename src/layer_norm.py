@@ -1,15 +1,13 @@
+from src.optimizers import Optimizer, Adam
+import copy
+import cupyx
+import cupy as cp
+from abc import ABC, abstractmethod
+from typing import Tuple
 import sys
 import os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from typing import Tuple
-from abc import ABC, abstractmethod
-import cupy as cp
-import cupyx
-import copy
-
-from model.optimizers import Optimizer, Adam
 
 
 class LayerNorm:

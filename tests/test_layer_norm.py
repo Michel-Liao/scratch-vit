@@ -11,7 +11,7 @@ from torch.autograd import gradcheck
 import numpy as np
 import cupy as cp
 
-from model.layer_norm import LayerNorm
+from src.layer_norm import LayerNorm
 
 
 class TestLayerNorm(unittest.TestCase):

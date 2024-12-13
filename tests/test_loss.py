@@ -9,7 +9,7 @@ import torch
 import torch.nn as nn
 import cupy as cp
 
-from model.loss import CategoricalCrossEntropyLoss
+from src.loss import CategoricalCrossEntropyLoss
 
 
 class TestCategoricalCrossEntropyLoss(unittest.TestCase):

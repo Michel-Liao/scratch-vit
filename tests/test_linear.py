@@ -9,7 +9,7 @@ import torch.nn as nn
 import numpy as np
 import cupy as cp
 
-from model.linear import Linear
+from src.linear import Linear
 
 
 class TestLinear(unittest.TestCase):

@@ -6,8 +6,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import unittest
 import numpy as np
 import cupy as cp
-from model.optimizers import Adam
-from model.positional_embedding import PositionalEmbedding
+from src.optimizers import Adam
+from src.positional_embedding import PositionalEmbedding
 
 
 class TestPositionalEmbedding(unittest.TestCase):

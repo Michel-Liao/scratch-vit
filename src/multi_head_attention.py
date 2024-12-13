@@ -8,8 +8,8 @@ from abc import ABC, abstractmethod
 import cupy as cp
 import copy
 
-from model.linear import Linear
-from model.softmax import Softmax
+from src.linear import Linear
+from src.softmax import Softmax
 
 
 class MultiHeadAttention:

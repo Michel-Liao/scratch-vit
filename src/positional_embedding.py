@@ -6,7 +6,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import cupy as cp
 import copy
 
-from model.optimizers import Optimizer, Adam
+from src.optimizers import Optimizer, Adam
 
 
 class PositionalEmbedding:

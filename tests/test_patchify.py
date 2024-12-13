@@ -9,7 +9,7 @@ import torch.nn as nn
 import numpy as np
 import cupy as cp
 
-from model.patchify import patchify
+from src.patchify import patchify
 
 
 def ref_patchify(images: cp.ndarray, patch_size: int = 16) -> cp.ndarray:

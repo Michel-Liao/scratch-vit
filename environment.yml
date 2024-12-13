@@ -18,6 +18,6 @@ dependencies:
   - scipy
   - pip
   - pip:
-    - opencv-python
-    - timm
-    - wandb
+      - opencv-python
+      - timm
+      - wandb

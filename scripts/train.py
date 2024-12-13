@@ -1,10 +1,10 @@
 import argparse
 import os
 
-from model.loss import CategoricalCrossEntropyLoss as CrossEntropyLoss
-from model.optimizers import Adam
-from model.vit_finished import ViT
-from model.softmax import Softmax
+from src.loss import CategoricalCrossEntropyLoss as CrossEntropyLoss
+from src.optimizers import Adam
+from src.vit_finished import ViT
+from src.softmax import Softmax
 import cupy as cp
 import tqdm
 

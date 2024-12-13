@@ -10,7 +10,7 @@ import torch.nn as nn
 import numpy as np
 import cupy as cp
 
-from model.activations import ReLU, FastGELU, GELU, Activation
+from src.activations import ReLU, FastGELU, GELU, Activation
 
 
 class TestActivationFunctions(unittest.TestCase):

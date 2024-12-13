@@ -8,10 +8,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import tqdm
-from model.loss import CategoricalCrossEntropyLoss
-from model.optimizers import Adam
-from model.vit_finished import ViT
-from model.softmax import Softmax
+from src.loss import CategoricalCrossEntropyLoss
+from src.optimizers import Adam
+from src.vit_finished import ViT
+from src.softmax import Softmax
 
 
 class VisionTransformer:

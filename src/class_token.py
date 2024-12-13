@@ -6,7 +6,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import copy
 import cupy as cp
 
-from model.optimizers import Optimizer
+from src.optimizers import Optimizer
 
 
 class Parameter:
