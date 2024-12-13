@@ -1,0 +1,46 @@
+===================================================
+Experiment Configuration:
+- Hidden Dimension: 576
+- Number of Heads: 12
+- Number of Blocks: 11
+- Patch Size: 16
+- Learning Rate: 1e-4
+- Start Time: Fri Dec 13 05:07:14 AM EST 2024
+===================================================
+Starting training for 7 epochs...
+
+Epoch 1/7
+Training:   0%|          | 0/781 [00:00<?, ?it/s]Training:   0%|          | 0/781 [00:01<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/michel/repos/scratch_vit/train_cifar.py", line 295, in <module>
+    vit_cifar.train_model()
+  File "/home/michel/repos/scratch_vit/train_cifar.py", line 221, in train_model
+    train_loss = self.train_iter()
+  File "/home/michel/repos/scratch_vit/train_cifar.py", line 162, in train_iter
+    y_pred = self.model.forward(x)
+  File "/home/michel/repos/scratch_vit/model/vit_finished.py", line 96, in forward
+    out = block.forward(out)
+  File "/home/michel/repos/scratch_vit/model/transformer_block.py", line 53, in forward
+    mha_out = self.mha.forward(self.layer_norm_1(x))
+  File "/home/michel/repos/scratch_vit/model/multi_head_attention.py", line 74, in forward
+    self.k_seqs = cp.dstack(k_seq)
+  File "/home/michel/miniforge3/envs/scratch_vit/lib/python3.10/site-packages/cupy/_manipulation/join.py", line 76, in dstack
+    return concatenate([cupy.atleast_3d(m) for m in tup], 2)
+  File "/home/michel/miniforge3/envs/scratch_vit/lib/python3.10/site-packages/cupy/_manipulation/join.py", line 60, in concatenate
+    return _core.concatenate_method(tup, axis, out, dtype, casting)
+  File "cupy/_core/_routines_manipulation.pyx", line 586, in cupy._core._routines_manipulation.concatenate_method
+  File "cupy/_core/_routines_manipulation.pyx", line 658, in cupy._core._routines_manipulation.concatenate_method
+  File "cupy/_core/core.pyx", line 137, in cupy._core.core.ndarray.__new__
+  File "cupy/_core/core.pyx", line 225, in cupy._core.core._ndarray_base._init
+  File "cupy/cuda/memory.pyx", line 738, in cupy.cuda.memory.alloc
+  File "cupy/cuda/memory.pyx", line 1424, in cupy.cuda.memory.MemoryPool.malloc
+  File "cupy/cuda/memory.pyx", line 1445, in cupy.cuda.memory.MemoryPool.malloc
+  File "cupy/cuda/memory.pyx", line 1116, in cupy.cuda.memory.SingleDeviceMemoryPool.malloc
+  File "cupy/cuda/memory.pyx", line 1137, in cupy.cuda.memory.SingleDeviceMemoryPool._malloc
+  File "cupy/cuda/memory.pyx", line 1382, in cupy.cuda.memory.SingleDeviceMemoryPool._try_malloc
+  File "cupy/cuda/memory.pyx", line 1385, in cupy.cuda.memory.SingleDeviceMemoryPool._try_malloc
+cupy.cuda.memory.OutOfMemoryError: Out of memory allocating 75,792,384 bytes (allocated so far: 24,038,477,312 bytes).
+
+real	0m2.515s
+user	0m2.911s
+sys	0m0.782s

@@ -1,0 +1,2 @@
+hidden_dim,num_heads,num_blocks,patch_size,learning_rate,test_accuracy,inference_time_ms,status
+160,6,3,1,1e-3,NA,NA,failed_error

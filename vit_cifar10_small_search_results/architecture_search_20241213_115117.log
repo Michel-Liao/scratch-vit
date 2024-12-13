@@ -1,0 +1,26 @@
+===================================================
+Vision Transformer Architecture Search for CIFAR-10
+Started at: Fri Dec 13 11:51:17 AM EST 2024
+===================================================
+
+Fixed Parameters:
+- Epochs: 7
+- Test interval: 1
+- Number of random trials per learning rate: 20
+
+Search Parameters:
+- Hidden dimension range: 64 to 512
+- Number of heads range: 2 to 6
+- Number of blocks range: 2 to 6
+- Patch sizes: 1 2 4
+- Learning rates: 1e-3 1e-4
+
+===================================================
+
+Experiment 1/40
+Configuration: hidden_dim=160, heads=6, blocks=3, patch_size=1, lr=1e-3
+Failed - Error during execution
+---------------------------------------------------
+
+Experiment 2/40
+Configuration: hidden_dim=224, heads=2, blocks=3, patch_size=1, lr=1e-3

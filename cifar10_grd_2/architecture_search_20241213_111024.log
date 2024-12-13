@@ -1,0 +1,41 @@
+===================================================
+Vision Transformer Architecture Search for CIFAR-10
+Started at: Fri Dec 13 11:10:24 AM EST 2024
+===================================================
+
+Fixed Parameters:
+- Epochs: 7
+- Test interval: 1
+- Number of random trials per learning rate: 35
+
+Search Parameters:
+- Hidden dimension range: 64 to 512
+- Number of heads range: 2 to 6
+- Number of blocks range: 2 to 6
+- Patch sizes: 1 2 4
+- Learning rates: 1e-4 1e-5
+
+===================================================
+
+Experiment 1/70
+Configuration: hidden_dim=224, heads=4, blocks=4, patch_size=2, lr=1e-4
+Success - Test Accuracy: 0.4104, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 2/70
+Configuration: hidden_dim=224, heads=5, blocks=3, patch_size=2, lr=1e-4
+Failed - Error during execution
+---------------------------------------------------
+
+Experiment 3/70
+Configuration: hidden_dim=64, heads=5, blocks=2, patch_size=1, lr=1e-4
+Failed - Error during execution
+---------------------------------------------------
+
+Experiment 4/70
+Configuration: hidden_dim=224, heads=2, blocks=5, patch_size=2, lr=1e-4
+Success - Test Accuracy: 0.4354, Inference Time: NAms
+---------------------------------------------------
+
+Experiment 5/70
+Configuration: hidden_dim=320, heads=5, blocks=5, patch_size=1, lr=1e-4
