@@ -10,15 +10,17 @@ from src.optimizers import Optimizer
 
 
 class Parameter:
-    """Parameter wrapper for CLS token."""
+    """
+    Parameter wrapper for CLS token.
+    """
 
     def __init__(self, cls: cp.ndarray) -> None:
-        """Initialize."""
         self.cls = cls
         self.optimizer = None
 
     def init_optimizer(self, optimizer: Optimizer) -> None:
-        """Set optimizer.
+        """
+        Set optimizer.
 
         Args:
             optimizer (Optimizer): Optimizer
@@ -29,12 +31,10 @@ class Parameter:
         self.cls = self.optimizer.update(self.cache["grad"], self.cls)
 
     def backward(self, grad: cp.ndarray) -> None:
-        """Backward propagation.
+        """
+        Backward propagation.
 
         Args:
             grad (cp.ndarray): The gradient with respect to the cls token
-
-        Returns:
-            None
         """
         self.cache = dict(grad=cp.sum(grad, axis=0)[None, :])
