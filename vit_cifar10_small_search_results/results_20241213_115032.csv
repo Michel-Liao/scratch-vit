@@ -1,1 +1,0 @@
-hidden_dim,num_heads,num_blocks,patch_size,learning_rate,test_accuracy,inference_time_ms,status
