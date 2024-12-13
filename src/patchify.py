@@ -1,10 +1,9 @@
 import cupy as cp
 
-
 def patchify(images: cp.ndarray, patch_size: int = 16) -> cp.ndarray:
     """
     Convert an image into patches for tokenization. This requires that H and W
-    is evenly divisible by the patch_size.
+    are evenly divisible by the patch_size.
 
     Args:
         images (cp.ndarray): Vector of form (batches, channels, height, width).
@@ -13,7 +12,6 @@ def patchify(images: cp.ndarray, patch_size: int = 16) -> cp.ndarray:
     Returns:
         patches (cp.ndarray): (B, N, patch_size**2 * C), where N = H*W/patch_size**2
     """
-
     assert type(images) == cp.ndarray, "Input must be a cupy array"
 
     B, C, H, W = images.shape

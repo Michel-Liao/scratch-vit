@@ -1,9 +1,8 @@
 import sys
 import os
+import cupy as cp
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-import cupy as cp
 
 from optimizers import Optimizer, Adam
 from activations import GELU

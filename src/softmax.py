@@ -1,21 +1,21 @@
-import sys
 import os
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from typing import Tuple
-from abc import ABC, abstractmethod
+import sys
 import cupy as cp
 
 class Softmax:
-    """Computes softmax."""
+    """
+    Computes softmax.
+    """
 
     def __init__(self) -> None:
-        """Initialize."""
         self.cache = {}
 
+    def __call__(self, x: cp.ndarray) -> cp.ndarray:
+        return self.forward(x)
+
     def forward(self, x: cp.ndarray) -> cp.ndarray:
-        """Forward propagation.
+        """
+        Forward propagation.
 
         Args:
             x (cp.ndarray): Input.
@@ -23,14 +23,9 @@ class Softmax:
         Returns:
             cp.ndarray: Softmax output.
         """
-
-        # assert x.ndim == 2, "Input must be 2D."
-
         max = cp.max(x, axis=-1)[:, None]
         y = cp.exp(x - max) / cp.sum(cp.exp(x - max), axis=-1, keepdims=True)
-
         self.cache = dict(output=y)
-
         return y
 
     def backward(self, grad: cp.ndarray) -> cp.ndarray:
@@ -43,10 +38,7 @@ class Softmax:
         Returns:
             cp.ndarray: Gradient with respect to the input.
         """
-
         softmax = self.cache["output"]
-        # ref - https://github.com/AkiRusProd/numpy-transformer/blob/master/transformer/activations.py
-
         J = softmax[..., cp.newaxis] * cp.tile(
             cp.identity(softmax.shape[-1]),
             (softmax.shape[0], *tuple(cp.ones(softmax.ndim, dtype=cp.int8).tolist())),
@@ -55,11 +47,8 @@ class Softmax:
                 *tuple(cp.arange(0, softmax.ndim - 1, 1, dtype=cp.int8).tolist()),
                 -1,
                 -2
-            )
-            @ softmax[..., cp.newaxis, :]
+            ) @ softmax[..., cp.newaxis, :]
         )
         input_grad = grad[..., cp.newaxis, :] @ J
         return input_grad.reshape(grad.shape)
 
-    def __call__(self, x: cp.ndarray) -> cp.ndarray:
-        return self.forward(x)

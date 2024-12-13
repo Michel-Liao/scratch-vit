@@ -1,26 +1,25 @@
 import sys
 import os
+import cupy as cp
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from typing import Tuple
-from abc import ABC, abstractmethod
-import cupy as cp
-import copy
 
 from src.linear import Linear
 from src.softmax import Softmax
 
 
 class MultiHeadAttention:
-    """Multi head attention"""
+    """
+    Multi head attention
+    """
 
     def __init__(self, dimension: int, n_heads: int = 2) -> None:
-        """Initialize.
+        """
+        Initialize the MultiHeadAttention layer.
 
         Args:
-            dimension: input dimension.
-            n_heads: number of heads.
+            dimension (int): Input dimension.
+            n_heads (int): Number of heads. Defaults to 2.
         """
         self.n_heads = n_heads
         self.d_head = int(dimension / n_heads)
@@ -36,14 +35,18 @@ class MultiHeadAttention:
         ]
         self.softmax = [Softmax() for _ in range(self.n_heads)]
 
+    def __call__(self):
+        return self.forward(self.sequences)
+
     def forward(self, sequences: cp.ndarray) -> cp.ndarray:
-        """Forward propagation.
+        """
+        Forward propagation.
 
         Args:
-            sequences: input array.
+            sequences (cp.ndarray): Input array.
 
         Returns:
-            computed multi head attention layer output.
+            cp.ndarray: Computed multi-head attention layer output.
         """
         self.sequences = sequences
         self.scale = cp.sqrt(self.d_head)
@@ -76,14 +79,15 @@ class MultiHeadAttention:
         self.attention_seqs = cp.dstack(attention_seq)
         return self.result
 
-    def backward(self, error: cp.ndarray) -> None:
-        """Backward propagation..
+    def backward(self, error: cp.ndarray) -> cp.ndarray:
+        """
+        Backward propagation.
 
         Args:
-            grad: represents the gradient w.r.t. the output. Defaults to None.
+            error (cp.ndarray): Gradient w.r.t. the output.
 
         Returns:
-            the gradients w.r.t. the input.
+            cp.ndarray: The gradients w.r.t. the input.
         """
         error_head_split = cp.split(error, self.n_heads, axis=-1)
         attention_seqs_split = cp.split(self.attention_seqs, self.n_heads, axis=-1)
@@ -112,10 +116,11 @@ class MultiHeadAttention:
         return cp.dstack(final_error)
 
     def init_optimizer(self, optimizer: object) -> None:
-        """Initializes optimizers.
+        """
+        Initializes optimizers.
 
         Args:
-            optimizer: optimizer.
+            optimizer (object): Optimizer.
         """
         for v_mapping in self.v_mappings:
             v_mapping.init_optimizer(optimizer)
@@ -125,13 +130,12 @@ class MultiHeadAttention:
             k_mapping.init_optimizer(optimizer)
 
     def update_params(self) -> None:
-        """Update weights based on the calculated gradients."""
+        """
+        Update weights based on the calculated gradients.
+        """
         for v_mapping in self.v_mappings:
             v_mapping.update_params()
         for q_mapping in self.q_mappings:
             q_mapping.update_params()
         for k_mapping in self.k_mappings:
             k_mapping.update_params()
-
-    def __call__(self):
-        return self.forward(self.sequences)

@@ -1,15 +1,8 @@
-import sys
-import os
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from typing import Tuple
-from abc import ABC, abstractmethod
 import cupy as cp
-import copy
-
 
 class CategoricalCrossEntropyLoss:
+
     def __init__(self) -> None:
         pass
 

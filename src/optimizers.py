@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
 import cupy as cp
 
-
 class Optimizer(ABC):
-    """Optimizer interface."""
+    """
+    Optimizer interface.
+    """
 
     @abstractmethod
     def update(self, grad: cp.ndarray, w: cp.ndarray) -> cp.ndarray:
@@ -11,14 +12,13 @@ class Optimizer(ABC):
         Update using gradient descent.
 
         Args:
-        grad (cp.ndarray): Gradient of the loss with respect to the weights.
-        w (cp.ndarray): Weights to be updated.
+            grad (cp.ndarray): Gradient of the loss with respect to the weights.
+            w (cp.ndarray): Weights to be updated.
 
         Returns:
-        None
+            cp.ndarray: Updated weights.
         """
         pass
-
 
 class Adam(Optimizer):
     """
@@ -30,13 +30,10 @@ class Adam(Optimizer):
     ) -> None:
         """
         Args:
-        lr (float): Learning rate.
-        b1 (float): Exponential decay rate for the first moment estimates.
-        b2 (float): Exponential decay rate for the second moment estimates.
-        eps (float): A small constant for numerical stability.
-
-        Returns:
-        None
+            lr (float): Learning rate.
+            b1 (float): Exponential decay rate for the first moment estimates.
+            b2 (float): Exponential decay rate for the second moment estimates.
+            eps (float): A small constant for numerical stability.
         """
         self.lr = lr
         self.b1 = b1
@@ -55,7 +52,7 @@ class Adam(Optimizer):
             w (cp.ndarray): Current weights.
 
         Returns:
-            cp.ndarray: Updated parameter values
+            cp.ndarray: Updated parameter values.
         """
         # Gradient check
         if cp.any(cp.isnan(grad)) or cp.any(cp.isinf(grad)):
