@@ -13,3 +13,16 @@ num_heads,num_blocks,hidden_dim,test_accuracy,inference_time_ms,status
 4,12,512,0.8650,NA,success
 8,4,512,0.8732,NA,success
 8,8,512,0.8746,NA,success
+8,12,512,0.8676,NA,success
+12,4,512,NA,NA,failed_error
+12,8,512,NA,NA,failed_error
+12,12,512,NA,NA,failed_error
+4,4,768,0.8606,NA,success
+4,8,768,0.8458,NA,success
+4,12,768,0.8716,NA,success
+8,4,768,0.8756,NA,success
+8,8,768,0.8918,NA,success
+8,12,768,0.8594,NA,success
+12,4,768,0.8698,NA,success
+12,8,768,0.8786,NA,success
+12,12,768,0.8744,NA,success

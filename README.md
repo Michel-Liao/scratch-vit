@@ -26,7 +26,7 @@ To run the unit tests:
 - [X] Patchification
 - [X] Position Embedding
 - [X] Linear
-- [ ] MHA
+- [X] MHA
 - [X] Layer Norm
 - [X] ReLU
 - [X] GELU

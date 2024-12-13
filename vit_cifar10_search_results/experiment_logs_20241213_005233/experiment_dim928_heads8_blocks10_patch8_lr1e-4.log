@@ -1,0 +1,13 @@
+===================================================
+Experiment Configuration:
+- Hidden Dimension: 928
+- Number of Heads: 8
+- Number of Blocks: 10
+- Patch Size: 8
+- Learning Rate: 1e-4
+- Start Time: Fri Dec 13 12:52:36 AM EST 2024
+===================================================
+Starting training for 7 epochs...
+
+Epoch 1/7
+Training:   0%|          | 0/781 [00:00<?, ?it/s]Training:   0%|          | 1/781 [00:02<29:06,  2.24s/it]Training:   0%|          | 2/781 [00:04<28:05,  2.16s/it]Training:   0%|          | 3/781 [00:06<27:46,  2.14s/it]Training:   1%|          | 4/781 [00:08<27:35,  2.13s/it]Training:   1%|          | 5/781 [00:10<27:28,  2.12s/it]Training:   1%|          | 6/781 [00:12<27:21,  2.12s/it]Training:   1%|          | 7/781 [00:14<27:18,  2.12s/it]
