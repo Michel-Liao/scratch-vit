@@ -5,7 +5,7 @@ import cupy as cp
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from optimizers import Optimizer, Adam
-from activations import GELU
+from activations import GeLU
 from layer_norm import LayerNorm
 from linear import Linear
 from multi_head_attention import MultiHeadAttention

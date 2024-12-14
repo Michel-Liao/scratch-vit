@@ -64,11 +64,11 @@ class TrainerViT:
             num_blocks=self.num_blocks,
             patch_size=self.patch_size,
             num_classes=len(self.classes),
-            init_method=self.init_method
+            init_method=self.init_method,
         )
 
         self.loss_function = CategoricalCrossEntropyLoss()
-        self.model.init_optimizer(Adam(lr=self.learning_rate) )
+        self.model.init_optimizer(Adam(lr=self.learning_rate))
 
         self.load_dataset()
 
@@ -77,22 +77,20 @@ class TrainerViT:
         Load preprocessed datasets directly from the provided paths.
         Assumes data is already in the correct format. One-hot encodes the class labels.
         """
-        with open(f"{self.data_path}_train", 'rb') as f:
+        with open(f"{self.data_path}_train", "rb") as f:
             self.x_train = cp.load(f)
             self.y_train = cp.load(f)
-            
-        with open(f"{self.data_path}_val", 'rb') as f:
+
+        with open(f"{self.data_path}_val", "rb") as f:
             self.x_val = cp.load(f)
             self.y_val = cp.load(f)
 
-        with open(f"{self.data_path}_test", 'rb') as f:
+        with open(f"{self.data_path}_test", "rb") as f:
             self.x_test = cp.load(f)
             self.y_test = cp.load(f)
 
-    def dataloader(self,
-        X: cp.ndarray,
-        Y: cp.ndarray,
-        shuffle: bool = False
+    def dataloader(
+        self, X: cp.ndarray, Y: cp.ndarray, shuffle: bool = False
     ) -> Generator[Tuple[cp.ndarray, cp.ndarray], None, None]:
         """
         Data generator for training and evaluation.
@@ -101,14 +99,14 @@ class TrainerViT:
             X (cp.ndarray): Input images (n, C, H, W).
             Y (cp.ndarray): One-hot encoded target labels (n, L).
             shuffle (bool): Whether to shuffle the data before feeding it.
-        
+
         Returns:
             Tuple of (X_batch, Y_batch): The next batch of data.
         """
 
         assert X.shape[0] == Y.shape[0], "Input and target dimensions do not match."
 
-        num_samples =  X.shape[0]
+        num_samples = X.shape[0]
 
         if shuffle:
             randomize = cp.arange(num_samples)
@@ -130,13 +128,13 @@ class TrainerViT:
 
         Returns:
             float: Average training loss for the epoch.
-        """            
+        """
 
         loader = self.dataloader(self.x_train, self.y_train, shuffle=True)
         train_losses = []
         num_batches = len(self.y_train) // self.batch_size
 
-        for (X_batch, Y_batch) in tqdm(loader, total=num_batches, desc="Training"):
+        for X_batch, Y_batch in tqdm(loader, total=num_batches, desc="Training"):
             Y_logits = self.model.forward(X_batch)
             loss = self.loss_function.forward(Y_logits, Y_batch)
             train_losses.append(loss)
@@ -144,7 +142,7 @@ class TrainerViT:
             grad = self.loss_function.backward(Y_batch)
             self.model.backward(grad)
             self.model.update_params()
-        
+
         return sum(train_losses) / len(train_losses)
 
     def evaluate(self, validation: bool = False) -> Tuple[float, float]:
@@ -157,25 +155,25 @@ class TrainerViT:
         Returns:
             Tuple[float, float]: Average validation loss and accuracy.
         """
-        
+
         if validation:
             loader = self.dataloader(self.x_val, self.y_val)
             num_samples = len(self.y_val)
         else:
             loader = self.dataloader(self.x_test, self.y_test)
             num_samples = len(self.y_test)
-        
+
         losses = []
         correct = 0
 
-        for (X_batch, Y_batch) in tqdm(loader, total=num_samples, desc="Validation"):
+        for X_batch, Y_batch in tqdm(loader, total=num_samples, desc="Validation"):
             Y_logits = self.model.forward(X_batch)
             loss = self.loss_function.forward(Y_pred, Y_batch)
             losses.append(loss)
 
             Y_probabilities = Softmax()(Y_logits)
             Y_pred = cp.argmax(Y_probabilities, axis=1, keepdims=True)
-            Y_true = cp.argmax(Y_batch, axis=1, keepdims=True) 
+            Y_true = cp.argmax(Y_batch, axis=1, keepdims=True)
 
             correct += int(cp.sum(Y_pred == Y_true))
 
@@ -184,7 +182,7 @@ class TrainerViT:
     def train(self) -> None:
         """
         Train the Vision Transformer model.
-        """ 
+        """
 
         print(f"Starting training for {self.epochs} epochs...")
         for epoch in range(self.epochs):
@@ -194,7 +192,9 @@ class TrainerViT:
 
             if (epoch + 1) % self.test_epoch_interval == 0:
                 val_loss, val_acc = self.evaluate(validation=True)
-                print(f"Validation Loss: {val_loss:.4f}, Validation Accuracy: {val_acc:.4f}")
+                print(
+                    f"Validation Loss: {val_loss:.4f}, Validation Accuracy: {val_acc:.4f}"
+                )
 
     def test(self) -> None:
         """
@@ -215,9 +215,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Train Vision Transformer on MNIST")
 
     # Data and training parameters
-    parser.add_argument(
-        "--data_path", required=True, help="Path to dataset folder"
-    )
+    parser.add_argument("--data_path", required=True, help="Path to dataset folder")
     parser.add_argument(
         "--batch_size", type=int, default=16, help="Training batch size"
     )
@@ -260,10 +258,10 @@ if __name__ == "__main__":
     args = parse_args()
 
     trainer = TrainerViT(
-        path_to_mnist=args.data_path,
+        data_path=args.data_path,
         batch_size=args.batch_size,
         epochs=args.epochs,
-        test_epoch_interval=args.eval_interval,
+        eval_interval=args.eval_interval,
         hidden_dim=args.hidden_dim,
         num_heads=args.num_heads,
         num_blocks=args.num_blocks,
