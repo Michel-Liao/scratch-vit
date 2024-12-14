@@ -90,7 +90,7 @@ python trainer.py --data_path ./data --batch_size 32 --epochs 10 --eval_interval
 
 To run the unit tests:
 
-1. `cd unit_tests`
+1. `cd tests`
 2. `python -m unittest [scriptname].py`
 
 ## References
