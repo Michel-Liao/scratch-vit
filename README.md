@@ -5,8 +5,8 @@
 
 This repository contains a from-scratch re-implementation of the Vision Transformer,
 first introduced by Dosovitskiy et. al. in 2020. The source code is written using
-CuPy, a CUDA-enabled sister library to NumPy. All modules and processes of the 
-Vision Transformer are re-implemented faithful to their description in the paper, 
+CuPy, a CUDA-enabled sister library to NumPy. All modules and processes of the
+Vision Transformer are re-implemented faithful to their description in the paper,
 not to any other versions. More information on all modules and processes can be
 found in the [`src` folder](./src/).
 
@@ -50,11 +50,11 @@ datasets. To begin, run the following command from the root directory.
 python ./preprocess.py
 ```
 
-It's possible to add additional datasets. Reference the `preprocess.py` to 
+It's possible to add additional datasets. Reference the `preprocess.py` to
 better understand what are the preprocessing steps required. In short, it's
 required that the dataset be cut into three .npy files, one for train, validation,
 and test. Each .npy file should contain two numpy arrays, the input in shape
-`(num_samples, channels, img_height, img_width)` and the labels in shape 
+`(num_samples, channels, img_height, img_width)` and the labels in shape
 `(num_samples, label_id)`. The label ids should be one-hot encoded.
 
 ### Training the model
@@ -62,22 +62,26 @@ and test. Each .npy file should contain two numpy arrays, the input in shape
 The Vision Transformer can be trained using the `trainer.py` script. The script accepts various command-line arguments to customize the training process:
 
 #### Data Parameters
-- `--data_path`: (Required) Path to the preprocessed dataset files. The script expects three files with suffixes "_train", "_val", and "_test"
+
+- `--data_path`: (Required) Path to the preprocessed dataset files. The script expects three files with suffixes "\_train", "\_val", and "\_test"
 - `--batch_size`: Number of samples per training batch (default: 16)
 - `--epochs`: Total number of training epochs (default: 5)
 - `--eval_interval`: Number of epochs between validation evaluations (default: 2)
 
 #### Model Architecture
+
 - `--hidden_dim`: Dimensionality of the transformer's hidden layers (default: 128)
 - `--num_heads`: Number of attention heads in multi-head attention (default: 4)
 - `--num_blocks`: Number of transformer encoder blocks (default: 4)
 - `--patch_size`: Size of image patches (default: 7)
 
 #### Optimization Parameters
+
 - `--learning_rate`: Learning rate for the Adam optimizer (default: 1e-9)
 - `--init_method`: Weight initialization method, choices: ["he", "normal", "uniform", "xavier"] (default: "he")
 
 #### Example Usage
+
 ```
 python trainer.py --data_path ./data --batch_size 32 --epochs 10 --eval_interval 1 --hidden_dim 256 --num_heads 8 --num_blocks 6 --patch_size 16 --learning_rate 1e-4 --init_method xavier
 ```
@@ -89,16 +93,64 @@ To run the unit tests:
 1. `cd unit_tests`
 2. `python -m unittest [scriptname].py`
 
-## Citations
+## References
 
-- ViT Paper
-- Transformer paper
-- Adam paper
-- Kaiming He Init Paper
-- Xavier Init Paper
-- GELU Paper
-- RELU Paper
-- Layer Norm Paper
+```
+@article{dosovitskiy2020image,
+  title={An image is worth 16x16 words: Transformers for image recognition at scale},
+  author={Dosovitskiy, Alexey},
+  journal={arXiv preprint arXiv:2010.11929},
+  year={2020}
+}
+
+@article{vaswani2017attention,
+  title={Attention is all you need},
+  author={Vaswani, A},
+  journal={Advances in Neural Information Processing Systems},
+  year={2017}
+}
+
+@article{kingma2014adam,
+  title={Adam: A method for stochastic optimization},
+  author={Kingma, Diederik P},
+  journal={arXiv preprint arXiv:1412.6980},
+  year={2014}
+}
+@inproceedings{he2015delving,
+  title={Delving deep into rectifiers: Surpassing human-level performance on imagenet classification},
+  author={He, Kaiming and Zhang, Xiangyu and Ren, Shaoqing and Sun, Jian},
+  booktitle={Proceedings of the IEEE international conference on computer vision},
+  pages={1026--1034},
+  year={2015}
+}
+@inproceedings{glorot2010understanding,
+  title={Understanding the difficulty of training deep feedforward neural networks},
+  author={Glorot, Xavier and Bengio, Yoshua},
+  booktitle={Proceedings of the thirteenth international conference on artificial intelligence and statistics},
+  pages={249--256},
+  year={2010},
+  organization={JMLR Workshop and Conference Proceedings}
+}
+@article{hendrycks2016gaussian,
+  title={Gaussian error linear units (gelus)},
+  author={Hendrycks, Dan and Gimpel, Kevin},
+  journal={arXiv preprint arXiv:1606.08415},
+  year={2016}
+}
+@article{agarap2018deep,
+  title={Deep learning using rectified linear units},
+  author={Agarap, Abien Fred},
+  journal={arXiv preprint arXiv:1803.08375},
+  year={2018}
+}
+@article{lei2016layer,
+  title={Layer normalization},
+  author={Lei Ba, Jimmy and Kiros, Jamie Ryan and Hinton, Geoffrey E},
+  journal={ArXiv e-prints},
+  pages={arXiv--1607},
+  year={2016}
+}
+```
 
 ## Notes
 
