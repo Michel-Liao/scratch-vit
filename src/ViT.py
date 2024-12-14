@@ -25,8 +25,8 @@ class ViT:
         h_dim: int,
         n_heads: int,
         num_blocks: int,
+        num_classes: int,
         init_method: str,
-        classes: int,
     ):
         """Initialize.
 
@@ -36,7 +36,7 @@ class ViT:
             hidden_d (int): Hidden dimension used in the transformer and linear layers.
             n_heads (int): Number of attention heads.
             num_blocks (int): Number of transformer blocks.
-            classes (int): Number of classes in the dataset.
+            num_classes (int): Number of classes in the dataset.
         """
         self.im_dim = im_dim
         self.n_patches = n_patches
@@ -54,7 +54,7 @@ class ViT:
         self.blocks = [TransformerBlock(h_dim, n_heads) for _ in range(num_blocks)]
 
         # MLP head for classification
-        self.mlp = Linear(self.h_dim, classes)
+        self.mlp = Linear(self.h_dim, num_classes)
 
     def forward(self, images: cp.ndarray) -> cp.ndarray:
         """Forward propagation.

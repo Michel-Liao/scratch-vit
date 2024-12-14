@@ -228,6 +228,9 @@ def parse_args() -> argparse.Namespace:
 
     # Model architecture parameters
     parser.add_argument(
+        "--num_classes", type=int, default=10, help="Number of classes in the dataset"
+    )
+    parser.add_argument(
         "--hidden_dim", type=int, default=128, help="Hidden dimension size"
     )
     parser.add_argument(
@@ -262,6 +265,7 @@ if __name__ == "__main__":
         batch_size=args.batch_size,
         epochs=args.epochs,
         eval_interval=args.eval_interval,
+        num_classes=args.num_classes,
         hidden_dim=args.hidden_dim,
         num_heads=args.num_heads,
         num_blocks=args.num_blocks,
