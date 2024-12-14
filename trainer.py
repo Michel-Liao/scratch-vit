@@ -18,7 +18,7 @@ class TrainerViT:
     def __init__(
         self,
         data_path: str,
-        classes: list,
+        num_classes: int,
         batch_size: int,
         epochs: int,
         eval_interval: int,
@@ -34,7 +34,7 @@ class TrainerViT:
 
         Args:
             data_path_train (str): Path to the dataset train, val, and test files.
-            classes (list): List of class names or labels for the classification task.
+            num_classes (int): Number of classes in the dataset.
             batch_size (int): Number of samples per batch during training.
             epochs (int): Total number of training epochs.
             eval_interval (int): Number of epochs between evaluations of the model on the validation set.
@@ -47,7 +47,7 @@ class TrainerViT:
         """
 
         self.data_path = data_path
-        self.classes = classes
+        self.num_classes = num_classes
         self.batch_size = batch_size
         self.epochs = epochs
         self.eval_interval = eval_interval
@@ -63,7 +63,7 @@ class TrainerViT:
             num_heads=self.num_heads,
             num_blocks=self.num_blocks,
             patch_size=self.patch_size,
-            num_classes=len(self.classes),
+            num_classes=self.num_classes,
             init_method=self.init_method,
         )
 
