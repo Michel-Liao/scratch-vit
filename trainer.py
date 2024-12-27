@@ -18,6 +18,7 @@ class TrainerViT:
     def __init__(
         self,
         data_path: str,
+        mnist: bool,
         num_classes: int,
         batch_size: int,
         epochs: int,
@@ -26,14 +27,15 @@ class TrainerViT:
         num_heads: int,
         num_blocks: int,
         learning_rate: float,
-        patch_size: int,
+        num_patches: int,
         init_method: str,
     ) -> None:
         """
         Initialize the Vision Transformer trainer.
 
         Args:
-            data_path_train (str): Path to the dataset train, val, and test files.
+            data_path (str): Path to the dataset train, val, and test files.
+            mnist (bool): Whether to use the MNIST dataset. If False, CIFAR-10 is used.
             num_classes (int): Number of classes in the dataset.
             batch_size (int): Number of samples per batch during training.
             epochs (int): Total number of training epochs.
@@ -42,11 +44,18 @@ class TrainerViT:
             num_heads (int): Number of attention heads in the multi-head self-attention mechanism.
             num_blocks (int): Number of Transformer encoder blocks in the model.
             learning_rate (float): Initial learning rate for the optimizer.
-            patch_size (int): Size of image patches to be fed into the Transformer.
+            num_patches (int): Number of patches per row.
             init_method (str): Initialization method for model weights (e.g., "xavier", "he", "normal").
         """
 
         self.data_path = data_path
+        self.mnist = mnist
+        if self.mnist:
+            self.im_dim = (1, 28, 28)
+        elif not self.mnist:
+            self.im_dim = (3, 32, 32)
+        else:
+            raise ValueError("Invalid dataset. Choose either MNIST or CIFAR-10.")
         self.num_classes = num_classes
         self.batch_size = batch_size
         self.epochs = epochs
@@ -55,14 +64,15 @@ class TrainerViT:
         self.num_heads = num_heads
         self.num_blocks = num_blocks
         self.learning_rate = learning_rate
-        self.patch_size = patch_size
+        self.num_patches = num_patches
         self.init_method = init_method
 
         self.model = ViT(
-            hidden_dim=self.hidden_dim,
-            num_heads=self.num_heads,
+            im_dim=self.im_dim,
+            h_dim=self.hidden_dim,
+            n_heads=self.num_heads,
             num_blocks=self.num_blocks,
-            patch_size=self.patch_size,
+            n_patches=self.num_patches,
             num_classes=self.num_classes,
             init_method=self.init_method,
         )
@@ -70,22 +80,29 @@ class TrainerViT:
         self.loss_function = CategoricalCrossEntropyLoss()
         self.model.init_optimizer(Adam(lr=self.learning_rate))
 
-        self.load_dataset()
+        self.load_dataset(self.mnist)
 
-    def load_dataset(self) -> None:
+    def load_dataset(self, mnist) -> None:
         """
         Load preprocessed datasets directly from the provided paths.
         Assumes data is already in the correct format. One-hot encodes the class labels.
         """
-        with open(f"{self.data_path}_train", "rb") as f:
+        if mnist:
+            parent = "mnist"
+        elif not mnist:
+            parent = "cifar10"
+        else:
+            raise ValueError("Invalid dataset. Choose either MNIST or CIFAR-10.")
+
+        with open(f"{self.data_path}/{parent}_train.npy", "rb") as f:
             self.x_train = cp.load(f)
             self.y_train = cp.load(f)
 
-        with open(f"{self.data_path}_val", "rb") as f:
+        with open(f"{self.data_path}/{parent}_val.npy", "rb") as f:
             self.x_val = cp.load(f)
             self.y_val = cp.load(f)
 
-        with open(f"{self.data_path}_test", "rb") as f:
+        with open(f"{self.data_path}/{parent}_test.npy", "rb") as f:
             self.x_test = cp.load(f)
             self.y_test = cp.load(f)
 
@@ -168,7 +185,7 @@ class TrainerViT:
 
         for X_batch, Y_batch in tqdm(loader, total=num_samples, desc="Validation"):
             Y_logits = self.model.forward(X_batch)
-            loss = self.loss_function.forward(Y_pred, Y_batch)
+            loss = self.loss_function.forward(Y_logits, Y_batch)
             losses.append(loss)
 
             Y_probabilities = Softmax()(Y_logits)
@@ -190,7 +207,7 @@ class TrainerViT:
             train_loss = self.train_iter()
             print(f"Training Loss: {train_loss:.4f}")
 
-            if (epoch + 1) % self.test_epoch_interval == 0:
+            if (epoch + 1) % self.eval_interval == 0:
                 val_loss, val_acc = self.evaluate(validation=True)
                 print(
                     f"Validation Loss: {val_loss:.4f}, Validation Accuracy: {val_acc:.4f}"
@@ -217,6 +234,15 @@ def parse_args() -> argparse.Namespace:
     # Data and training parameters
     parser.add_argument("--data_path", required=True, help="Path to dataset folder")
     parser.add_argument(
+        "--mnist",
+        default=True,
+        action="store_true",
+        help="Use MNIST dataset. Else CIFAR-10",
+    )
+    parser.add_argument(
+        "--num_patches", required=True, type=int, help="Number of patches per row"
+    )
+    parser.add_argument(
         "--batch_size", type=int, default=16, help="Training batch size"
     )
     parser.add_argument(
@@ -239,9 +265,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--num_blocks", type=int, default=4, help="Number of transformer blocks"
     )
-    parser.add_argument(
-        "--patch_size", type=int, default=7, help="Size of image patches"
-    )
 
     # Optimization parameters
     parser.add_argument(
@@ -262,6 +285,7 @@ if __name__ == "__main__":
 
     trainer = TrainerViT(
         data_path=args.data_path,
+        mnist=args.mnist,
         batch_size=args.batch_size,
         epochs=args.epochs,
         eval_interval=args.eval_interval,
@@ -270,7 +294,7 @@ if __name__ == "__main__":
         num_heads=args.num_heads,
         num_blocks=args.num_blocks,
         learning_rate=args.learning_rate,
-        patch_size=args.patch_size,
+        num_patches=args.num_patches,
         init_method=args.init_method,
     )
 

@@ -1,5 +1,0 @@
-hidden_dim,num_heads,num_blocks,patch_size,learning_rate,test_accuracy,inference_time_ms,status
-224,4,4,2,1e-4,0.4104,NA,success
-224,5,3,2,1e-4,NA,NA,failed_error
-64,5,2,1,1e-4,NA,NA,failed_error
-224,2,5,2,1e-4,0.4354,NA,success

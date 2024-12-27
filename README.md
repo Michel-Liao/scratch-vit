@@ -22,14 +22,13 @@ This repository is organized by the following:
 
 ```
 SCRATCH_VIT/
-├── data/           (Where datasets are to be stored)
-├── runs/           (Where run outputs and logs are stored)
-├── scripts/        (Bash scripts to automate processes such as hyperparameter tuning)
-├── src/            (Source code for our from-scratch implementation)
-├── tests/          (Unit test files to verify against PyTorch)
-├── visualize/      (Files useful to visualize graphs, images, etc.)
+├── data/           (Datasets stored here)
+├── scripts/        (Example batch script for random hyperparameter search)
+├── src/            (Source code for from-scratch implementation)
+├── tests/          (Unit tests to verify against PyTorch)
+├── visualize/      (Example visualization scripts/notebooks)
 ├── preprocess.py   (Python script to prepare data)
-├── trainer.py      (Python script that houses the ViT trainer class)
+├── trainer.py      (Train script houses the ViT trainer class)
 └── environment.yml (Library environment file)
 └── ...
 ```
@@ -57,68 +56,146 @@ and test. Each .npy file should contain two numpy arrays, the input in shape
 `(num_samples, channels, img_height, img_width)` and the labels in shape 
 `(num_samples, label_id)`. The label ids should be one-hot encoded.
 
-### Training the model
+### Training the Vision Transformer
+The Vision Transformer can be trained using the script with various command-line arguments to customize the training process:
 
-The Vision Transformer can be trained using the `trainer.py` script. The script accepts various command-line arguments to customize the training process:
-
-#### Data Parameters
-- `--data_path`: (Required) Path to the preprocessed dataset files. The script expects three files with suffixes "_train", "_val", and "_test"
+#### Data and Training Parameters
+- `--data_path`: (Required) Path to the dataset folder
+- `--mnist`: Flag to use MNIST dataset; if not set, CIFAR-10 will be used (default: True)
+- `--num_patches`: (Required) Number of patches per row
 - `--batch_size`: Number of samples per training batch (default: 16)
 - `--epochs`: Total number of training epochs (default: 5)
-- `--eval_interval`: Number of epochs between validation evaluations (default: 2)
+- `--eval_interval`: Test evaluation interval (default: 2)
 
-#### Model Architecture
-- `--hidden_dim`: Dimensionality of the transformer's hidden layers (default: 128)
+#### Model Architecture Parameters
+- `--num_classes`: Number of classes in the dataset (default: 10)
+- `--hidden_dim`: Dimensionality of the hidden layers (default: 128)
 - `--num_heads`: Number of attention heads in multi-head attention (default: 4)
 - `--num_blocks`: Number of transformer encoder blocks (default: 4)
-- `--patch_size`: Size of image patches (default: 7)
 
 #### Optimization Parameters
-- `--learning_rate`: Learning rate for the Adam optimizer (default: 1e-9)
-- `--init_method`: Weight initialization method, choices: ["he", "normal", "uniform", "xavier"] (default: "he")
+- `--learning_rate`: Learning rate for optimization (default: 1e-9)
+- `--init_method`: Weight initialization method, choose from ["he", "normal", "uniform", "xavier"] (default: "he")
 
 #### Example Usage
+### Example Usage
+
+Basic training on MNIST with default parameters:
+```python
+python train.py --data_path /path/to/mnist --num_patches 7
 ```
-python trainer.py --data_path ./data --batch_size 32 --epochs 10 --eval_interval 1 --hidden_dim 256 --num_heads 8 --num_blocks 6 --patch_size 16 --learning_rate 1e-4 --init_method xavier
+
+Training on CIFAR-10 with custom parameters:
+```
+python train.py \
+    --data_path /path/to/cifar10 \
+    --mnist False \
+    --num_patches 8 \
+    --batch_size 32 \
+    --epochs 10 \
+    --hidden_dim 256 \
+    --num_heads 8 \
+    --num_blocks 6 \
+    --learning_rate 1e-4 \
+    --init_method xavier
 ```
 
 ### Unit Tests
 
 To run the unit tests:
 
-1. `cd unit_tests`
+1. `cd tests`
 2. `python -m unittest [scriptname].py`
 
 ## Citations
 
-- ViT Paper
-- Transformer paper
-- Adam paper
-- Kaiming He Init Paper
-- Xavier Init Paper
-- GELU Paper
-- RELU Paper
-- Layer Norm Paper
+```
+@article{dosovitskiy2020image,
+  title={An image is worth 16x16 words: Transformers for image recognition at scale},
+  author={Dosovitskiy, Alexey},
+  journal={arXiv preprint arXiv:2010.11929},
+  year={2020}
+}
+
+@article{vaswani2017attention,
+  title={Attention is all you need},
+  author={Vaswani, A},
+  journal={Advances in Neural Information Processing Systems},
+  year={2017}
+}
+
+@article{kingma2014adam,
+  title={Adam: A method for stochastic optimization},
+  author={Kingma, Diederik P},
+  journal={arXiv preprint arXiv:1412.6980},
+  year={2014}
+}
+@inproceedings{he2015delving,
+  title={Delving deep into rectifiers: Surpassing human-level performance on imagenet classification},
+  author={He, Kaiming and Zhang, Xiangyu and Ren, Shaoqing and Sun, Jian},
+  booktitle={Proceedings of the IEEE international conference on computer vision},
+  pages={1026--1034},
+  year={2015}
+}
+@inproceedings{glorot2010understanding,
+  title={Understanding the difficulty of training deep feedforward neural networks},
+  author={Glorot, Xavier and Bengio, Yoshua},
+  booktitle={Proceedings of the thirteenth international conference on artificial intelligence and statistics},
+  pages={249--256},
+  year={2010},
+  organization={JMLR Workshop and Conference Proceedings}
+}
+@article{hendrycks2016gaussian,
+  title={Gaussian error linear units (gelus)},
+  author={Hendrycks, Dan and Gimpel, Kevin},
+  journal={arXiv preprint arXiv:1606.08415},
+  year={2016}
+}
+@article{agarap2018deep,
+  title={Deep learning using rectified linear units},
+  author={Agarap, Abien Fred},
+  journal={arXiv preprint arXiv:1803.08375},
+  year={2018}
+}
+@article{lei2016layer,
+  title={Layer normalization},
+  author={Lei Ba, Jimmy and Kiros, Jamie Ryan and Hinton, Geoffrey E},
+  journal={ArXiv e-prints},
+  pages={arXiv--1607},
+  year={2016}
+}
+```
 
 ## Notes
 
-- When doing patchify, issue of what happens if the image dimension doesn't work well with the patch dimension? The ViT paper doesn't explain this case but the Appendix B.1 shows they use resolution 224 x 224 which is divisible by their patch sizes of 16 and 32. We will do the same.
-- Implementing things in the order of the paper's method section isn't possible. Often, earlier steps mentioned, like learned positional embedding, require something later on, in this case an MLP.
-- Adam optimizer actually can optimizer with respect to a weight matrix w that has the bias concatenated so we can write less code.
-- Lots of minor design decisions, e.g. type of optimizers, ways to allocate memory in functions, dimensions to store weights matrix in linear layer ([out, in] better than [in, out] for the backward pass because of some CUDA and caching reasons).
-- Learned about ABC and unittest libraries in this.
-- Understanding softmax + CEloss pairing and going through the derivation of it to find loss with respect to logits. (Small implementation details like integer vs one-hot encoding.) Numerical stability issues with softmax (subtract max). Clipping probabilities to avoid log(0).
-- Small import issues like using sys(..) only works if it's in a package... `__init__` needed
-- Linear unit test tested forward and backward pass only for one pass. Needed to pass twice to check the `update_params()` function!
-- Numerical issues with LN. Add eps in the bottom.
-- Issue of using float64 in PyTorch vs float32 in cp for faster computation.
-- Question of how to initialize positional embeddings? Decided on normal distribution as each patch needs to learn to move its embedding toward a certain ideal so should cluster around mean.
-- Issue of no positional embedding PyTorch implementation... just have to be careful. Created some unit tests for shapes.
-- Initial implementation of linear layer used the formula z = x @ W.T + b. Switched it back to z = W @ x + b because dimensions weren't working in MHA.
-- ViTBlock backward pass commment. Important to talk about!
-- Exploding gradients / vanishing
-- cp.newaxis issues
-- optimizing z = x @ W.T + b
-- stacking CLS token/how to process
-- not calculating softmax before classification
-- running times weren't consistent with the same configuration
+### Patchify and Image Dimensions
+One significant issue arose during the patchification process. If the image dimensions are not divisible by the chosen patch size, handling the remainder becomes problematic. The Vision Transformer (ViT) paper does not explicitly address this case, although Appendix B.1 mentions using a resolution of 224 × 224, which is divisible by the patch sizes of 16 and 32. To resolve this, we followed a similar approach, ensuring our input images were resized to compatible dimensions.
+
+### Implementation Order and Dependencies
+Implementing components in the order presented in the ViT paper's methodology was often impractical due to interdependencies. For example, implementing the learned positional embedding required an MLP that was described in a later section of the paper. This necessitated a non-linear development workflow to align the implementation with functional dependencies.
+
+### Optimizations and Design Decisions
+Various design decisions posed challenges, such as selecting appropriate optimizers and determining memory allocation strategies. We optimized the weight matrix in linear layers using the layout `[out, in]` instead of `[in, out]` to improve performance in backward passes due to CUDA caching. Additionally, we discovered that the Adam optimizer could optimize weights and biases concatenated into a single matrix, simplifying code.
+
+### Numerical Stability and Loss Function Challenges
+Understanding and implementing the pairing of softmax with cross-entropy loss (CE loss) required a deep dive into their derivations. Numerical stability issues with softmax necessitated subtracting the maximum value before exponentiation. Similarly, clipping probabilities was crucial to avoid undefined logarithms (e.g., log(0)). For layer normalization, adding a small ε value to the denominator addressed numerical instability.
+
+### Unit Testing and Debugging
+Unit testing revealed critical implementation bugs. For instance, our initial test of the linear layer's forward and backward passes did not account for testing parameter updates across multiple passes. This oversight was identified when testing the `update_params()` function. Furthermore, the absence of built-in PyTorch positional embedding required custom implementation and additional unit tests to verify shape correctness.
+
+### Implementation-Specific Challenges
+Several implementation-specific issues arose, including:
+
+* Import errors when not using a proper package structure, resolved by adding `__init__.py`
+* Deciding how to initialize positional embeddings; we opted for a normal distribution to allow patches to cluster around a mean and learn ideal embeddings
+* Addressing discrepancies between PyTorch's `float32` and CuPy's `float64`, which impacted computation speed and memory usage
+* Handling `cp.newaxis` and optimizing matrix operations like `z = x @ W.T + b`
+
+### Model-Specific Issues
+Key model-specific issues included:
+
+* Designing and testing the backward pass in the ViT block, particularly for multi-head attention (MHA)
+* Stacking the CLS token and processing it efficiently during training and evaluation
+* Managing exploding and vanishing gradients, which required careful tuning of the learning rate and gradient clipping
+* Ensuring the correct sequence of operations, such as not applying softmax prematurely before the classification layer
+* Identifying and fixing issues with MNIST one-hot encoding that were causing incorrect label representations

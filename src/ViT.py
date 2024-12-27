@@ -32,7 +32,7 @@ class ViT:
 
         Args:
             im_dim (Tuple[int, int, int]): Image dimensions in the format [C, H, W].
-            n_patches (int): Number of patches in the image.
+            n_patches (int): Number of patches per row.
             hidden_d (int): Hidden dimension used in the transformer and linear layers.
             n_heads (int): Number of attention heads.
             num_blocks (int): Number of transformer blocks.

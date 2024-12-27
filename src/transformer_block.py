@@ -32,7 +32,7 @@ class TransformerBlock:
         self.mha = MultiHeadAttention(h_dim, n_heads)
         self.layer_norm_2 = LayerNorm(h_dim)
         self.mlp_1 = Linear(h_dim, mlp_ratio * h_dim)
-        self.gelu = GELU()
+        self.gelu = GeLU()
         self.mlp_2 = Linear(mlp_ratio * h_dim, h_dim)
         self.cache = dict(input=None)
         self.optimizer = None

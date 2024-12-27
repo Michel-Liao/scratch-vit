@@ -36,10 +36,10 @@ def download_and_preprocess_mnist(output_dir: str, val_split: float = 0.1) -> No
         labels = []
 
         for img, label in dataset:
-            images.append(img.numpy()) # Will be (1, 28, 28) for MNIST
+            images.append(img.numpy())  # Will be (1, 28, 28) for MNIST
             labels.append(label)
 
-        images = np.stack(images)  # Shape: (N, 1, 28, 28)
+        images = np.stack(images)  # Shape: (B, 1, 28, 28)
         labels = np.array(labels)
 
         # One-hot encode labels
@@ -90,7 +90,7 @@ def download_and_preprocess_cifar10(output_dir: str, val_split: float = 0.1) -> 
             images.append(img.numpy())  # Will be (3, 32, 32) for CIFAR-10
             labels.append(label)
 
-        images = np.stack(images)  # Shape: (N, 3, 32, 32)
+        images = np.stack(images)  # Shape: (B, 3, 32, 32)
         labels = np.array(labels)
 
         # One-hot encode labels (CIFAR-10 has 10 classes)
